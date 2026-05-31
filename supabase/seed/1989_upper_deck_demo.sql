@@ -62,12 +62,15 @@ on conflict (set_id, card_number) do update set
 insert into public.card_images (card_id, side, image_url, status)
 select id, side::public.card_image_side,
   case
+    when card_number = 1 and side = 'front' then '/scans/1989-upper-deck-baseball/1-ken-griffey-jr-front.webp'
+    when card_number = 1 and side = 'back' then '/scans/1989-upper-deck-baseball/1-ken-griffey-jr-back.webp'
     when side = 'front' and card_number % 4 = 0 then '/placeholders/front-needed.svg'
     when side = 'back' and card_number % 5 = 0 then '/placeholders/back-needed.svg'
     when side = 'front' then '/placeholders/demo-front.svg'
     else '/placeholders/demo-back.svg'
   end,
   case
+    when card_number = 1 then 'approved'::public.card_image_status
     when side = 'front' and card_number % 4 = 0 then 'missing'::public.card_image_status
     when side = 'back' and card_number % 5 = 0 then 'missing'::public.card_image_status
     else 'approved'::public.card_image_status

@@ -86,4 +86,9 @@ Open a draft PR for review, then connect the repo to Railway for deployment.
 - `npm run build` builds the app.
 - `npm run lint` runs Next.js linting.
 - `npm run seed` loads the 30-card demo seed through `SUPABASE_DB_URL`.
+- `npm run process-scan -- <input> <output> <left> <top> <width> <height>` crops a raw scan/photo into a 750x1050 WebP card image.
 - `npm run start` starts the built app.
+
+## Scan Cleanup
+
+Raw card photos often include table edges, sleeves, slabs, or tilted borders. The current cleanup path is a manual crop command using Sharp. Future upload moderation should automate this with a preview step: detect the card rectangle, deskew it, crop to the standard 2.5:3.5 ratio, let the submitter adjust, then save the cleaned image to Supabase Storage.

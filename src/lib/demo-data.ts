@@ -50,6 +50,7 @@ export const demoCards: Card[] = rawCards.map(([number, playerName, team, positi
   const cardSlug = `${number}-${slugify(playerName)}`;
   const hasFront = Number(number) % 4 !== 0;
   const hasBack = Number(number) % 5 !== 0;
+  const isGriffey = Number(number) === 1;
 
   return {
     id: cardSlug,
@@ -69,13 +70,21 @@ export const demoCards: Card[] = rawCards.map(([number, playerName, team, positi
     images: [
       {
         side: "front",
-        status: hasFront ? "approved" : "missing",
-        imageUrl: hasFront ? `/placeholders/demo-front.svg?card=${number}` : "/placeholders/front-needed.svg"
+        status: hasFront || isGriffey ? "approved" : "missing",
+        imageUrl: isGriffey
+          ? "/scans/1989-upper-deck-baseball/1-ken-griffey-jr-front.webp"
+          : hasFront
+            ? `/placeholders/demo-front.svg?card=${number}`
+            : "/placeholders/front-needed.svg"
       },
       {
         side: "back",
-        status: hasBack ? "approved" : "missing",
-        imageUrl: hasBack ? `/placeholders/demo-back.svg?card=${number}` : "/placeholders/back-needed.svg"
+        status: hasBack || isGriffey ? "approved" : "missing",
+        imageUrl: isGriffey
+          ? "/scans/1989-upper-deck-baseball/1-ken-griffey-jr-back.webp"
+          : hasBack
+            ? `/placeholders/demo-back.svg?card=${number}`
+            : "/placeholders/back-needed.svg"
       }
     ]
   };

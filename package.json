@@ -7,6 +7,7 @@
     "build": "next build",
     "lint": "eslint .",
     "seed": "tsx scripts/seed.ts",
+    "process-scan": "node scripts/process-card-scan.mjs",
     "start": "next start"
   },
   "dependencies": {
@@ -18,6 +19,8 @@
     "pg": "^8.12.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "sharp": "^0.34.5",
+    "sharp": "^0.34.5",
     "tailwind-merge": "^2.4.0"
   },
   "devDependencies": {
