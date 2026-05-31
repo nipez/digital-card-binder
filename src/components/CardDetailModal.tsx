@@ -7,13 +7,18 @@ import { hasMissingScan } from "@/lib/demo-data";
 
 export function CardDetailModal({ card }: { card: Card }) {
   return (
-    <main className="mx-auto max-w-6xl px-5 py-8">
+    <main className="mx-auto max-w-6xl px-5 py-6">
       <Link href="/sets/1989-upper-deck-baseball" className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-archive-oxblood">
         <ArrowLeft className="h-4 w-4" />
         Back to binder
       </Link>
-      <section className="grid gap-8 lg:grid-cols-[420px_1fr]">
-        <FlipCard card={card} large />
+      <section className="grid items-start gap-8 lg:grid-cols-[minmax(280px,360px)_1fr]">
+        <div className="mx-auto w-full max-w-[360px]">
+          <FlipCard card={card} large />
+          <p className="mt-3 text-center text-sm font-bold text-archive-ink/70">
+            #{card.number} {card.playerName} • {card.team}
+          </p>
+        </div>
         <div className="rounded-lg border border-archive-ink/10 bg-white/62 p-6 shadow-card">
           <p className="text-sm font-bold uppercase text-archive-oxblood">Card #{card.number}</p>
           <h1 className="mt-2 font-display text-5xl font-bold">{card.playerName}</h1>

@@ -9,12 +9,14 @@ export function FlipCard({
   card,
   large = false,
   interactive = true,
-  forceFlipped = false
+  forceFlipped = false,
+  showOverlay = false
 }: {
   card: Card;
   large?: boolean;
   interactive?: boolean;
   forceFlipped?: boolean;
+  showOverlay?: boolean;
 }) {
   const [flipped, setFlipped] = useState(false);
   const front = card.images.find((image) => image.side === "front");
@@ -27,8 +29,8 @@ export function FlipCard({
         </span>
       ) : null}
       <span className="flip-card-inner relative block aspect-[2.5/3.5] w-full">
-        <CardFace card={card} imageUrl={front?.imageUrl ?? null} label="Front scan needed" large={large} />
-        <CardFace card={card} imageUrl={back?.imageUrl ?? null} label="Back scan needed" back large={large} />
+        <CardFace card={card} imageUrl={front?.imageUrl ?? null} label="Front scan needed" large={large} showOverlay={showOverlay} />
+        <CardFace card={card} imageUrl={back?.imageUrl ?? null} label="Back scan needed" back large={large} showOverlay={showOverlay} />
       </span>
     </>
   );
@@ -59,13 +61,15 @@ function CardFace({
   imageUrl,
   label,
   back = false,
-  large = false
+  large = false,
+  showOverlay = false
 }: {
   card: Card;
   imageUrl: string | null;
   label: string;
   back?: boolean;
   large?: boolean;
+  showOverlay?: boolean;
 }) {
   return (
     <span
@@ -76,10 +80,14 @@ function CardFace({
       ) : (
         <span className="grid h-full place-items-center bg-white/58 p-4 text-center font-bold text-archive-ink/60">{label}</span>
       )}
-      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-archive-ink/78 to-transparent p-3 text-white">
-        <span className="block text-xs font-bold uppercase">#{card.number} {card.position}</span>
-        <span className="block truncate font-display text-lg font-bold">{card.playerName}</span>
-      </span>
+      {showOverlay ? (
+        <span className="absolute inset-x-0 bottom-0 bg-archive-ink/82 p-3 text-white">
+          <span className="block text-xs font-bold uppercase">
+            #{card.number} {card.position}
+          </span>
+          <span className="block truncate font-display text-lg font-bold">{card.playerName}</span>
+        </span>
+      ) : null}
     </span>
   );
 }
