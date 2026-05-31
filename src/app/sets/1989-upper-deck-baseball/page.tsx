@@ -9,13 +9,13 @@ export default async function SetPage() {
   const { set, cards, source } = await getUpperDeckSetData();
 
   return (
-    <main className="mx-auto grid max-w-7xl gap-6 px-5 py-8">
-      <section className="grid gap-5 rounded-lg border border-archive-ink/10 bg-white/54 p-6 shadow-sm lg:grid-cols-[1fr_440px]">
+    <main className="mx-auto grid max-w-7xl gap-5 px-4 py-6 md:px-5 md:py-8">
+      <section className="grid items-end gap-5 rounded-lg border border-white/74 bg-white/62 p-5 shadow-card backdrop-blur lg:grid-cols-[1.15fr_0.85fr] lg:p-7">
         <SetHeader set={set} />
         <CompletionStats cards={cards} totalCards={set.totalCards} />
       </section>
       {source === "supabase" ? (
-        <p className="rounded-md border border-archive-field/20 bg-archive-field/10 px-4 py-2 text-sm font-bold text-archive-field">
+        <p className="w-fit rounded-md border border-archive-field/20 bg-archive-field/10 px-3 py-2 text-xs font-bold uppercase text-archive-field">
           Reading cards from Supabase.
         </p>
       ) : null}

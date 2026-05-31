@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import type { FilterState } from "@/types/binder";
 
 export function FilterBar({
@@ -12,21 +12,23 @@ export function FilterBar({
   filters: FilterState;
   onChange: (filters: FilterState) => void;
 }) {
+  const view = filters.rookieOnly ? "rookies" : filters.hofOnly ? "hof" : filters.missingOnly ? "missing" : "all";
+
   return (
-    <div className="grid gap-3 rounded-lg border border-archive-ink/10 bg-white/62 p-4 shadow-sm md:grid-cols-[1fr_220px_auto]">
+    <div className="grid gap-3 rounded-lg border border-white/74 bg-white/70 p-3 shadow-sm backdrop-blur md:grid-cols-[1fr_220px_220px]">
       <label className="relative block">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-archive-ink/50" />
         <input
           value={filters.query ?? ""}
           onChange={(event) => onChange({ ...filters, query: event.target.value })}
-          placeholder="Filter by player"
-          className="h-11 w-full rounded-md border border-archive-ink/14 bg-white/80 pl-10 pr-3 text-sm outline-none focus:border-archive-oxblood"
+          placeholder="Search player, card number, team..."
+          className="h-12 w-full rounded-md border border-archive-ink/12 bg-white pl-10 pr-3 text-sm font-semibold outline-none focus:border-archive-oxblood"
         />
       </label>
       <select
         value={filters.team ?? ""}
         onChange={(event) => onChange({ ...filters, team: event.target.value || undefined })}
-        className="h-11 rounded-md border border-archive-ink/14 bg-white/80 px-3 text-sm font-semibold outline-none focus:border-archive-oxblood"
+        className="h-12 rounded-md border border-archive-ink/12 bg-white px-3 text-sm font-semibold outline-none focus:border-archive-oxblood"
       >
         <option value="">All teams</option>
         {teams.map((team) => (
@@ -35,25 +37,27 @@ export function FilterBar({
           </option>
         ))}
       </select>
-      <div className="flex flex-wrap gap-2">
-        <Toggle label="Rookies" active={Boolean(filters.rookieOnly)} onClick={() => onChange({ ...filters, rookieOnly: !filters.rookieOnly })} />
-        <Toggle label="Hall of Famers" active={Boolean(filters.hofOnly)} onClick={() => onChange({ ...filters, hofOnly: !filters.hofOnly })} />
-        <Toggle label="Missing scans" active={Boolean(filters.missingOnly)} onClick={() => onChange({ ...filters, missingOnly: !filters.missingOnly })} />
-      </div>
+      <label className="relative block">
+        <SlidersHorizontal className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-archive-ink/50" />
+        <select
+          value={view}
+          onChange={(event) => {
+            const nextView = event.target.value;
+            onChange({
+              ...filters,
+              rookieOnly: nextView === "rookies",
+              hofOnly: nextView === "hof",
+              missingOnly: nextView === "missing"
+            });
+          }}
+          className="h-12 w-full rounded-md border border-archive-ink/12 bg-white pl-10 pr-3 text-sm font-semibold outline-none focus:border-archive-oxblood"
+        >
+          <option value="all">Full binder</option>
+          <option value="rookies">Rookies</option>
+          <option value="hof">Hall of Famers</option>
+          <option value="missing">Missing scans</option>
+        </select>
+      </label>
     </div>
-  );
-}
-
-function Toggle({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`h-11 rounded-md border px-3 text-sm font-bold transition ${
-        active ? "border-archive-oxblood bg-archive-oxblood text-white" : "border-archive-ink/14 bg-white/72 text-archive-ink"
-      }`}
-    >
-      {label}
-    </button>
   );
 }

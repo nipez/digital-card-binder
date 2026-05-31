@@ -5,7 +5,17 @@ import { RotateCcw } from "lucide-react";
 import type { Card } from "@/types/binder";
 import { useState } from "react";
 
-export function FlipCard({ card, large = false, interactive = true }: { card: Card; large?: boolean; interactive?: boolean }) {
+export function FlipCard({
+  card,
+  large = false,
+  interactive = true,
+  forceFlipped = false
+}: {
+  card: Card;
+  large?: boolean;
+  interactive?: boolean;
+  forceFlipped?: boolean;
+}) {
   const [flipped, setFlipped] = useState(false);
   const front = card.images.find((image) => image.side === "front");
   const back = card.images.find((image) => image.side === "back");
@@ -25,7 +35,7 @@ export function FlipCard({ card, large = false, interactive = true }: { card: Ca
 
   if (!interactive) {
     return (
-      <span data-flipped={false} className="flip-card group relative block w-full text-left">
+      <span data-flipped={forceFlipped} className="flip-card group relative block w-full text-left">
         {content}
       </span>
     );
