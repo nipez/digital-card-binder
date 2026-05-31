@@ -1,0 +1,15 @@
+[
+  {
+    "cardSlug": "1-ken-griffey-jr",
+    "side": "front",
+    "sourceUrl": "https://example.com/owned-or-licensed-front.webp",
+    "sourceName": "Owned scan or licensed source",
+    "rightsConfirmed": true,
+    "crop": {
+      "left": 132,
+      "top": 145,
+      "width": 930,
+      "height": 1302
+    }
+  }
+]

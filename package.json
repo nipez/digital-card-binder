@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "eslint .",
+    "ingest-approved-scans": "node scripts/ingest-approved-scans.mjs",
     "seed": "tsx scripts/seed.ts",
     "process-scan": "node scripts/process-card-scan.mjs",
     "start": "next start"
