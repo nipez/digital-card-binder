@@ -2,9 +2,11 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { CompletionStats } from "@/components/CompletionStats";
 import { SetHeader } from "@/components/SetHeader";
-import { demoCards, upperDeck1989Set } from "@/lib/demo-data";
+import { getUpperDeckSetData } from "@/lib/supabase-data";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { set, cards } = await getUpperDeckSetData();
+
   return (
     <main>
       <section className="border-b border-archive-ink/10 bg-[linear-gradient(135deg,rgba(110,47,43,0.94),rgba(47,107,79,0.88)),url('/placeholders/binder-texture.svg')] bg-cover text-white">
@@ -27,8 +29,8 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="self-end rounded-lg border border-white/18 bg-white/12 p-4 shadow-card backdrop-blur">
-            <SetHeader set={upperDeck1989Set} compact />
-            <CompletionStats cards={demoCards} totalCards={upperDeck1989Set.totalCards} />
+            <SetHeader set={set} compact />
+            <CompletionStats cards={cards} totalCards={set.totalCards} />
           </div>
         </div>
       </section>
