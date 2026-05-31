@@ -51,6 +51,7 @@ export const demoCards: Card[] = rawCards.map(([number, playerName, team, positi
   const hasFront = Number(number) % 4 !== 0;
   const hasBack = Number(number) % 5 !== 0;
   const isGriffey = Number(number) === 1;
+  const isDarrinJackson = Number(number) === 2;
 
   return {
     id: cardSlug,
@@ -70,18 +71,22 @@ export const demoCards: Card[] = rawCards.map(([number, playerName, team, positi
     images: [
       {
         side: "front",
-        status: hasFront || isGriffey ? "approved" : "missing",
+        status: hasFront || isGriffey || isDarrinJackson ? "approved" : "missing",
         imageUrl: isGriffey
           ? "/scans/1989-upper-deck-baseball/1-ken-griffey-jr-front.webp"
+          : isDarrinJackson
+            ? "/scans/1989-upper-deck-baseball/2-darrin-jackson-front.webp"
           : hasFront
             ? `/placeholders/demo-front.svg?card=${number}`
             : "/placeholders/front-needed.svg"
       },
       {
         side: "back",
-        status: hasBack || isGriffey ? "approved" : "missing",
+        status: hasBack || isGriffey || isDarrinJackson ? "approved" : "missing",
         imageUrl: isGriffey
           ? "/scans/1989-upper-deck-baseball/1-ken-griffey-jr-back.webp"
+          : isDarrinJackson
+            ? "/scans/1989-upper-deck-baseball/2-darrin-jackson-back.webp"
           : hasBack
             ? `/placeholders/demo-back.svg?card=${number}`
             : "/placeholders/back-needed.svg"
