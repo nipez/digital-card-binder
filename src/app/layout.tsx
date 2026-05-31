@@ -17,12 +17,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               Binder Archive
             </Link>
             <div className="flex items-center gap-3 text-sm font-semibold">
-              <Link href="/sets/1989-upper-deck-baseball" className="hover:text-archive-oxblood">
-                Set
-              </Link>
-              <Link href="/submit-scan" className="hover:text-archive-oxblood">
-                Submit Scan
-              </Link>
+            <Link href="/sets/1989-upper-deck-baseball" className="hover:text-archive-oxblood">
+              Set
+            </Link>
+            <Link href="/comics" className="hover:text-archive-oxblood">
+              Comics
+            </Link>
+            <Link href="/submit-scan" className="hover:text-archive-oxblood">
+              Submit Scan
+            </Link>
               <Link href="/admin/moderation" className="hover:text-archive-oxblood">
                 Admin
               </Link>

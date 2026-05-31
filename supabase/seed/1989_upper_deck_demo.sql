@@ -66,13 +66,15 @@ select id, side::public.card_image_side,
     when card_number = 1 and side = 'back' then '/scans/1989-upper-deck-baseball/1-ken-griffey-jr-back.webp'
     when card_number = 2 and side = 'front' then '/scans/1989-upper-deck-baseball/2-darrin-jackson-front.webp'
     when card_number = 2 and side = 'back' then '/scans/1989-upper-deck-baseball/2-darrin-jackson-back.webp'
+    when card_number = 3 and side = 'front' then '/scans/1989-upper-deck-baseball/3-roberto-alomar-front.webp'
+    when card_number = 3 and side = 'back' then '/scans/1989-upper-deck-baseball/3-roberto-alomar-back.webp'
     when side = 'front' and card_number % 4 = 0 then '/placeholders/front-needed.svg'
     when side = 'back' and card_number % 5 = 0 then '/placeholders/back-needed.svg'
     when side = 'front' then '/placeholders/demo-front.svg'
     else '/placeholders/demo-back.svg'
   end,
   case
-    when card_number in (1, 2) then 'approved'::public.card_image_status
+    when card_number in (1, 2, 3) then 'approved'::public.card_image_status
     when side = 'front' and card_number % 4 = 0 then 'missing'::public.card_image_status
     when side = 'back' and card_number % 5 = 0 then 'missing'::public.card_image_status
     else 'approved'::public.card_image_status

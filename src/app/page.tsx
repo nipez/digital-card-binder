@@ -27,6 +27,12 @@ export default async function HomePage() {
             >
               Open the binder <ArrowRight className="h-4 w-4" />
             </Link>
+            <Link
+              href="/comics"
+              className="ml-3 mt-8 inline-flex items-center gap-2 rounded-md border border-white/24 px-5 py-3 font-bold text-white transition hover:translate-y-[-1px]"
+            >
+              Try comics v2 <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
           <div className="self-end rounded-lg border border-white/18 bg-white/12 p-4 shadow-card backdrop-blur">
             <SetHeader set={set} compact />
