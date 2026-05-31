@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="700" viewBox="0 0 500 700" role="img" aria-label="Back scan needed placeholder">
+  <rect width="500" height="700" fill="#f7efe0"/>
+  <rect x="28" y="28" width="444" height="644" rx="20" fill="#ffffff" stroke="#2f6b4f" stroke-width="10" stroke-dasharray="18 14"/>
+  <rect x="150" y="190" width="200" height="118" rx="12" fill="#2f6b4f" opacity=".18"/>
+  <path d="M178 362 h144 M178 404 h144 M178 446 h98" stroke="#2f6b4f" stroke-width="18" stroke-linecap="round"/>
+  <text x="250" y="524" text-anchor="middle" fill="#221d1a" font-family="Georgia, serif" font-size="38" font-weight="700">Back scan</text>
+  <text x="250" y="568" text-anchor="middle" fill="#2f6b4f" font-family="Arial, sans-serif" font-size="26" font-weight="700">needed</text>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="700" viewBox="0 0 500 700" role="img" aria-label="Front scan needed placeholder">
+  <rect width="500" height="700" fill="#f7efe0"/>
+  <rect x="28" y="28" width="444" height="644" rx="20" fill="#ffffff" stroke="#6e2f2b" stroke-width="10" stroke-dasharray="18 14"/>
+  <circle cx="250" cy="255" r="82" fill="#b58a43" opacity=".24"/>
+  <path d="M184 255 h132 M250 189 v132" stroke="#6e2f2b" stroke-width="16" stroke-linecap="round"/>
+  <text x="250" y="422" text-anchor="middle" fill="#221d1a" font-family="Georgia, serif" font-size="38" font-weight="700">Front scan</text>
+  <text x="250" y="466" text-anchor="middle" fill="#6e2f2b" font-family="Arial, sans-serif" font-size="26" font-weight="700">needed</text>
+</svg>
