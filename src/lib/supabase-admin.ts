@@ -1,10 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
-
-const defaultProjectUrl = "https://llbizbhdbrblvrjfvxwx.supabase.co";
+import { getSupabaseUrl } from "@/lib/supabase-config";
 
 export function getAdminSupabaseConfigStatus() {
   return {
-    hasUrl: Boolean(getAdminSupabaseUrl()),
+    hasUrl: Boolean(getSupabaseUrl()),
     hasAdminKey: Boolean(
       process.env.SUPABASE_SERVICE_ROLE_KEY ||
         process.env.SUPABASE_SECRET_KEY ||
@@ -15,7 +14,7 @@ export function getAdminSupabaseConfigStatus() {
 }
 
 export function createAdminSupabaseClient() {
-  const url = getAdminSupabaseUrl();
+  const url = getSupabaseUrl();
   const key =
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.SUPABASE_SECRET_KEY ||
@@ -31,8 +30,4 @@ export function createAdminSupabaseClient() {
       persistSession: false
     }
   });
-}
-
-function getAdminSupabaseUrl() {
-  return process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || defaultProjectUrl;
 }

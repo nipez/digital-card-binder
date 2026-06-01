@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
+import { getSupabasePublishableKey, getSupabaseUrl } from "@/lib/supabase-config";
 
 export function createServerSupabaseClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = getSupabaseUrl();
+  const key = getSupabasePublishableKey();
 
   if (!url || !key) {
     return null;
