@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CardDetailModal } from "@/components/CardDetailModal";
 import { getSupabaseCardBySlug, getUpperDeckSetData } from "@/lib/supabase-data";
 
@@ -11,6 +11,11 @@ export async function generateStaticParams() {
 
 export default async function CardPage({ params }: { params: Promise<{ cardSlug: string }> }) {
   const { cardSlug } = await params;
+
+  if (cardSlug === "4-gregg-jefferies") {
+    redirect("/cards/9-gregg-jefferies");
+  }
+
   const card = await getSupabaseCardBySlug(cardSlug);
 
   if (!card) {

@@ -14,35 +14,35 @@ export const upperDeck1989Set: SetSummary = {
 
 const rawCards = [
   ["1", "Ken Griffey Jr.", "Seattle Mariners", "OF", true, true],
-  ["2", "Darrin Jackson", "Chicago Cubs", "OF", false, false],
-  ["3", "Roberto Alomar", "San Diego Padres", "2B", true, true],
-  ["4", "Gregg Jefferies", "New York Mets", "IF", true, false],
+  ["2", "Luis Medina", "Cleveland Indians", "OF", true, false],
+  ["3", "Tony Chance", "Pittsburgh Pirates", "OF", true, false],
+  ["4", "David Otto", "Oakland Athletics", "P", true, false],
   ["5", "Sandy Alomar Jr.", "San Diego Padres", "C", true, false],
-  ["6", "Gary Sheffield", "Milwaukee Brewers", "SS", true, false],
-  ["7", "Jim Abbott", "California Angels", "P", true, false],
-  ["8", "Randy Johnson", "Montreal Expos", "P", true, true],
-  ["9", "Craig Biggio", "Houston Astros", "C", true, true],
-  ["10", "John Smoltz", "Atlanta Braves", "P", true, true],
-  ["11", "Tom Glavine", "Atlanta Braves", "P", false, true],
-  ["12", "Nolan Ryan", "Texas Rangers", "P", false, true],
-  ["13", "Cal Ripken Jr.", "Baltimore Orioles", "SS", false, true],
-  ["14", "Tony Gwynn", "San Diego Padres", "OF", false, true],
-  ["15", "Ozzie Smith", "St. Louis Cardinals", "SS", false, true],
-  ["16", "Rickey Henderson", "New York Yankees", "OF", false, true],
-  ["17", "Wade Boggs", "Boston Red Sox", "3B", false, true],
-  ["18", "Kirby Puckett", "Minnesota Twins", "OF", false, true],
-  ["19", "Mark McGwire", "Oakland Athletics", "1B", false, false],
-  ["20", "Don Mattingly", "New York Yankees", "1B", false, false],
-  ["21", "Will Clark", "San Francisco Giants", "1B", false, false],
-  ["22", "Bo Jackson", "Kansas City Royals", "OF", false, false],
-  ["23", "Barry Larkin", "Cincinnati Reds", "SS", false, true],
-  ["24", "Robin Yount", "Milwaukee Brewers", "OF", false, true],
-  ["25", "Paul Molitor", "Milwaukee Brewers", "3B", false, true],
-  ["26", "Andre Dawson", "Chicago Cubs", "OF", false, true],
-  ["27", "Eddie Murray", "Los Angeles Dodgers", "1B", false, true],
-  ["28", "George Brett", "Kansas City Royals", "3B", false, true],
-  ["29", "Roger Clemens", "Boston Red Sox", "P", false, false],
-  ["30", "Jose Canseco", "Oakland Athletics", "OF", false, false]
+  ["6", "Rolando Roomes", "Cincinnati Reds", "OF", true, false],
+  ["7", "David West", "New York Mets", "P", true, false],
+  ["8", "Cris Carpenter", "St. Louis Cardinals", "P", true, false],
+  ["9", "Gregg Jefferies", "New York Mets", "IF", true, false],
+  ["10", "Doug Dascenzo", "Chicago Cubs", "OF", true, false],
+  ["11", "Ron Jones", "Philadelphia Phillies", "OF", true, false],
+  ["12", "Luis de los Santos", "Kansas City Royals", "IF", true, false],
+  ["13", "Gary Sheffield", "Milwaukee Brewers", "SS", true, false],
+  ["14", "Mike Harkey", "Chicago Cubs", "P", true, false],
+  ["15", "Lance Blankenship", "Oakland Athletics", "IF", true, false],
+  ["16", "William Brennan", "Los Angeles Dodgers", "P", true, false],
+  ["17", "John Smoltz", "Atlanta Braves", "P", true, true],
+  ["18", "Ramon Martinez", "Los Angeles Dodgers", "P", true, false],
+  ["19", "Mark Lemke", "Atlanta Braves", "2B", true, false],
+  ["20", "Juan Bell", "Baltimore Orioles", "SS", true, false],
+  ["21", "Rey Palacios", "Kansas City Royals", "C", true, false],
+  ["22", "Felix Jose", "Oakland Athletics", "OF", true, false],
+  ["23", "Van Snider", "Cincinnati Reds", "OF", true, false],
+  ["24", "Dante Bichette", "California Angels", "OF", true, false],
+  ["25", "Randy Johnson", "Montreal Expos", "P", true, true],
+  ["26", "Carlos Quintana", "Boston Red Sox", "1B", true, false],
+  ["27", "Star Rookies Checklist", "Checklist", "CL", false, false],
+  ["214", "Darrin Jackson", "Chicago Cubs", "OF", false, false],
+  ["273", "Craig Biggio", "Houston Astros", "C", true, true],
+  ["471", "Roberto Alomar", "San Diego Padres", "2B", true, true]
 ] as const;
 
 export const demoCards: Card[] = rawCards.map(([number, playerName, team, position, isRookie, isHallOfFamer]) => {
@@ -51,8 +51,8 @@ export const demoCards: Card[] = rawCards.map(([number, playerName, team, positi
   const hasFront = Number(number) % 4 !== 0;
   const hasBack = Number(number) % 5 !== 0;
   const isGriffey = Number(number) === 1;
-  const isDarrinJackson = Number(number) === 2;
-  const isRobertoAlomar = Number(number) === 3;
+  const isDarrinJackson = playerName === "Darrin Jackson";
+  const isRobertoAlomar = playerName === "Roberto Alomar";
 
   return {
     id: cardSlug,

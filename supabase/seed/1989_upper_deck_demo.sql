@@ -17,35 +17,35 @@ with set_row as (
 ), card_rows(card_number, slug, player_name, team, team_slug, position, is_rookie, is_hall_of_famer) as (
   values
   (1, '1-ken-griffey-jr', 'Ken Griffey Jr.', 'Seattle Mariners', 'seattle-mariners', 'OF', true, true),
-  (2, '2-darrin-jackson', 'Darrin Jackson', 'Chicago Cubs', 'chicago-cubs', 'OF', false, false),
-  (3, '3-roberto-alomar', 'Roberto Alomar', 'San Diego Padres', 'san-diego-padres', '2B', true, true),
-  (4, '4-gregg-jefferies', 'Gregg Jefferies', 'New York Mets', 'new-york-mets', 'IF', true, false),
+  (2, '2-luis-medina', 'Luis Medina', 'Cleveland Indians', 'cleveland-indians', 'OF', true, false),
+  (3, '3-tony-chance', 'Tony Chance', 'Pittsburgh Pirates', 'pittsburgh-pirates', 'OF', true, false),
+  (4, '4-david-otto', 'David Otto', 'Oakland Athletics', 'oakland-athletics', 'P', true, false),
   (5, '5-sandy-alomar-jr', 'Sandy Alomar Jr.', 'San Diego Padres', 'san-diego-padres', 'C', true, false),
-  (6, '6-gary-sheffield', 'Gary Sheffield', 'Milwaukee Brewers', 'milwaukee-brewers', 'SS', true, false),
-  (7, '7-jim-abbott', 'Jim Abbott', 'California Angels', 'california-angels', 'P', true, false),
-  (8, '8-randy-johnson', 'Randy Johnson', 'Montreal Expos', 'montreal-expos', 'P', true, true),
-  (9, '9-craig-biggio', 'Craig Biggio', 'Houston Astros', 'houston-astros', 'C', true, true),
-  (10, '10-john-smoltz', 'John Smoltz', 'Atlanta Braves', 'atlanta-braves', 'P', true, true),
-  (11, '11-tom-glavine', 'Tom Glavine', 'Atlanta Braves', 'atlanta-braves', 'P', false, true),
-  (12, '12-nolan-ryan', 'Nolan Ryan', 'Texas Rangers', 'texas-rangers', 'P', false, true),
-  (13, '13-cal-ripken-jr', 'Cal Ripken Jr.', 'Baltimore Orioles', 'baltimore-orioles', 'SS', false, true),
-  (14, '14-tony-gwynn', 'Tony Gwynn', 'San Diego Padres', 'san-diego-padres', 'OF', false, true),
-  (15, '15-ozzie-smith', 'Ozzie Smith', 'St. Louis Cardinals', 'st-louis-cardinals', 'SS', false, true),
-  (16, '16-rickey-henderson', 'Rickey Henderson', 'New York Yankees', 'new-york-yankees', 'OF', false, true),
-  (17, '17-wade-boggs', 'Wade Boggs', 'Boston Red Sox', 'boston-red-sox', '3B', false, true),
-  (18, '18-kirby-puckett', 'Kirby Puckett', 'Minnesota Twins', 'minnesota-twins', 'OF', false, true),
-  (19, '19-mark-mcgwire', 'Mark McGwire', 'Oakland Athletics', 'oakland-athletics', '1B', false, false),
-  (20, '20-don-mattingly', 'Don Mattingly', 'New York Yankees', 'new-york-yankees', '1B', false, false),
-  (21, '21-will-clark', 'Will Clark', 'San Francisco Giants', 'san-francisco-giants', '1B', false, false),
-  (22, '22-bo-jackson', 'Bo Jackson', 'Kansas City Royals', 'kansas-city-royals', 'OF', false, false),
-  (23, '23-barry-larkin', 'Barry Larkin', 'Cincinnati Reds', 'cincinnati-reds', 'SS', false, true),
-  (24, '24-robin-yount', 'Robin Yount', 'Milwaukee Brewers', 'milwaukee-brewers', 'OF', false, true),
-  (25, '25-paul-molitor', 'Paul Molitor', 'Milwaukee Brewers', 'milwaukee-brewers', '3B', false, true),
-  (26, '26-andre-dawson', 'Andre Dawson', 'Chicago Cubs', 'chicago-cubs', 'OF', false, true),
-  (27, '27-eddie-murray', 'Eddie Murray', 'Los Angeles Dodgers', 'los-angeles-dodgers', '1B', false, true),
-  (28, '28-george-brett', 'George Brett', 'Kansas City Royals', 'kansas-city-royals', '3B', false, true),
-  (29, '29-roger-clemens', 'Roger Clemens', 'Boston Red Sox', 'boston-red-sox', 'P', false, false),
-  (30, '30-jose-canseco', 'Jose Canseco', 'Oakland Athletics', 'oakland-athletics', 'OF', false, false)
+  (6, '6-rolando-roomes', 'Rolando Roomes', 'Cincinnati Reds', 'cincinnati-reds', 'OF', true, false),
+  (7, '7-david-west', 'David West', 'New York Mets', 'new-york-mets', 'P', true, false),
+  (8, '8-cris-carpenter', 'Cris Carpenter', 'St. Louis Cardinals', 'st-louis-cardinals', 'P', true, false),
+  (9, '9-gregg-jefferies', 'Gregg Jefferies', 'New York Mets', 'new-york-mets', 'IF', true, false),
+  (10, '10-doug-dascenzo', 'Doug Dascenzo', 'Chicago Cubs', 'chicago-cubs', 'OF', true, false),
+  (11, '11-ron-jones', 'Ron Jones', 'Philadelphia Phillies', 'philadelphia-phillies', 'OF', true, false),
+  (12, '12-luis-de-los-santos', 'Luis de los Santos', 'Kansas City Royals', 'kansas-city-royals', 'IF', true, false),
+  (13, '13-gary-sheffield', 'Gary Sheffield', 'Milwaukee Brewers', 'milwaukee-brewers', 'SS', true, false),
+  (14, '14-mike-harkey', 'Mike Harkey', 'Chicago Cubs', 'chicago-cubs', 'P', true, false),
+  (15, '15-lance-blankenship', 'Lance Blankenship', 'Oakland Athletics', 'oakland-athletics', 'IF', true, false),
+  (16, '16-william-brennan', 'William Brennan', 'Los Angeles Dodgers', 'los-angeles-dodgers', 'P', true, false),
+  (17, '17-john-smoltz', 'John Smoltz', 'Atlanta Braves', 'atlanta-braves', 'P', true, true),
+  (18, '18-ramon-martinez', 'Ramon Martinez', 'Los Angeles Dodgers', 'los-angeles-dodgers', 'P', true, false),
+  (19, '19-mark-lemke', 'Mark Lemke', 'Atlanta Braves', 'atlanta-braves', '2B', true, false),
+  (20, '20-juan-bell', 'Juan Bell', 'Baltimore Orioles', 'baltimore-orioles', 'SS', true, false),
+  (21, '21-rey-palacios', 'Rey Palacios', 'Kansas City Royals', 'kansas-city-royals', 'C', true, false),
+  (22, '22-felix-jose', 'Felix Jose', 'Oakland Athletics', 'oakland-athletics', 'OF', true, false),
+  (23, '23-van-snider', 'Van Snider', 'Cincinnati Reds', 'cincinnati-reds', 'OF', true, false),
+  (24, '24-dante-bichette', 'Dante Bichette', 'California Angels', 'california-angels', 'OF', true, false),
+  (25, '25-randy-johnson', 'Randy Johnson', 'Montreal Expos', 'montreal-expos', 'P', true, true),
+  (26, '26-carlos-quintana', 'Carlos Quintana', 'Boston Red Sox', 'boston-red-sox', '1B', true, false),
+  (27, '27-star-rookies-checklist', 'Star Rookies Checklist', 'Checklist', 'checklist', 'CL', false, false),
+  (214, '214-darrin-jackson', 'Darrin Jackson', 'Chicago Cubs', 'chicago-cubs', 'OF', false, false),
+  (273, '273-craig-biggio', 'Craig Biggio', 'Houston Astros', 'houston-astros', 'C', true, true),
+  (471, '471-roberto-alomar', 'Roberto Alomar', 'San Diego Padres', 'san-diego-padres', '2B', true, true)
 )
 insert into public.cards (set_id, card_number, slug, player_name, team, team_slug, position, is_rookie, is_hall_of_famer, notes)
 select set_row.id, card_rows.card_number, card_rows.slug, card_rows.player_name, card_rows.team, card_rows.team_slug, card_rows.position, card_rows.is_rookie, card_rows.is_hall_of_famer, 'Demo checklist data for MVP browsing and filtering.'
@@ -64,17 +64,17 @@ select id, side::public.card_image_side,
   case
     when card_number = 1 and side = 'front' then '/scans/1989-upper-deck-baseball/1-ken-griffey-jr-front.webp'
     when card_number = 1 and side = 'back' then '/scans/1989-upper-deck-baseball/1-ken-griffey-jr-back.webp'
-    when card_number = 2 and side = 'front' then '/scans/1989-upper-deck-baseball/2-darrin-jackson-front.webp'
-    when card_number = 2 and side = 'back' then '/scans/1989-upper-deck-baseball/2-darrin-jackson-back.webp'
-    when card_number = 3 and side = 'front' then '/scans/1989-upper-deck-baseball/3-roberto-alomar-front.webp'
-    when card_number = 3 and side = 'back' then '/scans/1989-upper-deck-baseball/3-roberto-alomar-back.webp'
+    when player_name = 'Darrin Jackson' and side = 'front' then '/scans/1989-upper-deck-baseball/2-darrin-jackson-front.webp'
+    when player_name = 'Darrin Jackson' and side = 'back' then '/scans/1989-upper-deck-baseball/2-darrin-jackson-back.webp'
+    when player_name = 'Roberto Alomar' and side = 'front' then '/scans/1989-upper-deck-baseball/3-roberto-alomar-front.webp'
+    when player_name = 'Roberto Alomar' and side = 'back' then '/scans/1989-upper-deck-baseball/3-roberto-alomar-back.webp'
     when side = 'front' and card_number % 4 = 0 then '/placeholders/front-needed.svg'
     when side = 'back' and card_number % 5 = 0 then '/placeholders/back-needed.svg'
     when side = 'front' then '/placeholders/demo-front.svg'
     else '/placeholders/demo-back.svg'
   end,
   case
-    when card_number in (1, 2, 3) then 'approved'::public.card_image_status
+    when card_number = 1 or player_name in ('Darrin Jackson', 'Roberto Alomar') then 'approved'::public.card_image_status
     when side = 'front' and card_number % 4 = 0 then 'missing'::public.card_image_status
     when side = 'back' and card_number % 5 = 0 then 'missing'::public.card_image_status
     else 'approved'::public.card_image_status

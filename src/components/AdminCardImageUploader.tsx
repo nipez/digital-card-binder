@@ -1,36 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, Copy, ExternalLink, ImagePlus, Loader2, UploadCloud } from "lucide-react";
+import { CheckCircle2, Copy, ExternalLink, ImagePlus, Loader2, UploadCloud, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Card } from "@/types/binder";
 
 export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card[]; initialCardSlug?: string }) {
   const [cardSlug, setCardSlug] = useState(initialCardSlug ?? cards[0]?.cardSlug ?? "");
-  const [side, setSide] = useState<"front" | "back">("front");
   const [token, setToken] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [frontFile, setFrontFile] = useState<File | null>(null);
+  const [backFile, setBackFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState("");
-  const [uploadedUrl, setUploadedUrl] = useState("");
+  const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
   const selectedCard = cards.find((card) => card.cardSlug === cardSlug);
-  const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
+  const frontPreviewUrl = useMemo(() => (frontFile ? URL.createObjectURL(frontFile) : ""), [frontFile]);
+  const backPreviewUrl = useMemo(() => (backFile ? URL.createObjectURL(backFile) : ""), [backFile]);
 
   async function uploadImage() {
-    if (!file || !cardSlug || !token) {
+    if ((!frontFile && !backFile) || !cardSlug || !token) {
       setStatus("error");
-      setMessage("Choose a card, image, side, and enter the admin token.");
+      setMessage("Choose a card, at least one image, and enter the admin token.");
       return;
     }
 
     setStatus("saving");
-    setMessage("Uploading image...");
-    setUploadedUrl("");
+    setMessage("Uploading image files...");
+    setUploadedUrls([]);
 
     const formData = new FormData();
     formData.set("cardSlug", cardSlug);
-    formData.set("side", side);
-    formData.set("file", file);
+    if (frontFile) {
+      formData.set("frontFile", frontFile);
+    }
+    if (backFile) {
+      formData.set("backFile", backFile);
+    }
 
     const response = await fetch("/api/admin/card-images", {
       method: "POST",
@@ -39,7 +44,7 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
       },
       body: formData
     });
-    const result = (await response.json()) as { error?: string; imageUrl?: string };
+    const result = (await response.json()) as { error?: string; images?: { imageUrl: string; side: "front" | "back" }[] };
 
     if (!response.ok || result.error) {
       setStatus("error");
@@ -47,9 +52,12 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
       return;
     }
 
+    const savedSides = result.images?.map((image) => image.side).join(" and ") ?? "image";
     setStatus("saved");
-    setMessage(`${side === "front" ? "Front" : "Back"} image saved for ${selectedCard?.playerName ?? "card"}.`);
-    setUploadedUrl(result.imageUrl ?? "");
+    setMessage(`${savedSides} saved for ${selectedCard?.playerName ?? "card"}.`);
+    setUploadedUrls(result.images?.map((image) => image.imageUrl) ?? []);
+    setFrontFile(null);
+    setBackFile(null);
   }
 
   return (
@@ -62,7 +70,7 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
           <div>
             <h1 className="font-display text-4xl font-bold">Admin Card Image Upload</h1>
             <p className="mt-1 text-sm font-semibold text-archive-ink/62">
-              Upload a front or back scan directly into Supabase Storage and approve it on the card.
+              Upload front and back scans together into Supabase Storage and approve them on the card.
             </p>
           </div>
         </div>
@@ -94,38 +102,10 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
             </select>
           </label>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            {(["front", "back"] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setSide(value)}
-                className={`h-11 rounded-md border px-3 text-sm font-bold capitalize transition ${
-                  side === value ? "border-archive-oxblood bg-archive-oxblood text-white" : "border-archive-ink/12 bg-white text-archive-ink"
-                }`}
-              >
-                {value}
-              </button>
-            ))}
+          <div className="grid gap-3 md:grid-cols-2">
+            <ScanFilePicker label="Front scan" file={frontFile} previewUrl={frontPreviewUrl} onChange={setFrontFile} />
+            <ScanFilePicker label="Back scan" file={backFile} previewUrl={backPreviewUrl} onChange={setBackFile} />
           </div>
-
-          <label className="grid min-h-56 cursor-pointer place-items-center overflow-hidden rounded-lg border border-dashed border-archive-oxblood/40 bg-archive-paper/70 p-6 text-center text-sm font-bold text-archive-oxblood">
-            {previewUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={previewUrl} alt="Selected scan preview" className="max-h-[460px] max-w-full rounded-md object-contain shadow-card" />
-            ) : (
-              <span>
-                <UploadCloud className="mx-auto mb-2 h-8 w-8" />
-                Choose image from your computer
-              </span>
-            )}
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="sr-only"
-              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-            />
-          </label>
 
           <button
             type="button"
@@ -134,7 +114,7 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
             className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-archive-ink px-4 text-sm font-bold text-white disabled:opacity-55"
           >
             {status === "saving" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
-            Save approved image
+            Save approved image{frontFile && backFile ? "s" : ""}
           </button>
 
           {message ? (
@@ -171,25 +151,63 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
           <ol className="mt-3 grid gap-2 text-sm leading-6 text-archive-ink/68">
             <li>1. Open a card page.</li>
             <li>2. Click Admin upload scan.</li>
-            <li>3. Pick front or back, upload, save.</li>
+            <li>3. Add front, back, or both in one save.</li>
             <li>4. Refresh the card page after it saves.</li>
           </ol>
         </section>
 
-        {uploadedUrl ? (
+        {uploadedUrls.length > 0 ? (
           <section className="rounded-lg border border-white/74 bg-white/70 p-5 shadow-sm backdrop-blur">
-            <h2 className="font-display text-2xl font-bold">Saved URL</h2>
+            <h2 className="font-display text-2xl font-bold">Saved URLs</h2>
             <button
               type="button"
-              onClick={() => navigator.clipboard.writeText(uploadedUrl)}
+              onClick={() => navigator.clipboard.writeText(uploadedUrls.join("\n"))}
               className="mt-3 inline-flex items-center gap-2 rounded-md bg-archive-ink px-3 py-2 text-sm font-bold text-white"
             >
               <Copy className="h-4 w-4" />
-              Copy URL
+              Copy URLs
             </button>
           </section>
         ) : null}
       </aside>
+    </div>
+  );
+}
+
+function ScanFilePicker({
+  label,
+  file,
+  previewUrl,
+  onChange
+}: {
+  label: string;
+  file: File | null;
+  previewUrl: string;
+  onChange: (file: File | null) => void;
+}) {
+  return (
+    <div className="grid gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-bold">{label}</p>
+        {file ? (
+          <button type="button" onClick={() => onChange(null)} className="inline-flex items-center gap-1 text-xs font-bold text-archive-oxblood">
+            <X className="h-3.5 w-3.5" />
+            Clear
+          </button>
+        ) : null}
+      </div>
+      <label className="grid min-h-72 cursor-pointer place-items-center overflow-hidden rounded-lg border border-dashed border-archive-oxblood/40 bg-archive-paper/70 p-4 text-center text-sm font-bold text-archive-oxblood">
+        {previewUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={previewUrl} alt={`${label} preview`} className="max-h-[420px] max-w-full rounded-md object-contain shadow-card" />
+        ) : (
+          <span>
+            <UploadCloud className="mx-auto mb-2 h-8 w-8" />
+            Choose {label.toLowerCase()}
+          </span>
+        )}
+        <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => onChange(event.target.files?.[0] ?? null)} />
+      </label>
     </div>
   );
 }

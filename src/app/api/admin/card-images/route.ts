@@ -27,19 +27,29 @@ export async function POST(request: Request) {
 
   const formData = await request.formData();
   const cardSlug = String(formData.get("cardSlug") ?? "");
-  const side = String(formData.get("side") ?? "");
-  const file = formData.get("file");
+  const legacySide = String(formData.get("side") ?? "");
+  const legacyFile = formData.get("file");
+  const uploads = [
+    { side: "front", file: formData.get("frontFile") },
+    { side: "back", file: formData.get("backFile") }
+  ].filter((upload) => upload.file instanceof File && upload.file.size > 0);
 
-  if (!cardSlug || !allowedSides.has(side)) {
-    return NextResponse.json({ error: "Choose a valid card and side." }, { status: 400 });
+  if (uploads.length === 0 && legacyFile instanceof File && legacyFile.size > 0 && allowedSides.has(legacySide)) {
+    uploads.push({ side: legacySide, file: legacyFile });
   }
 
-  if (!(file instanceof File) || file.size === 0) {
-    return NextResponse.json({ error: "Choose an image file." }, { status: 400 });
+  if (!cardSlug) {
+    return NextResponse.json({ error: "Choose a valid card." }, { status: 400 });
   }
 
-  if (!allowedTypes.has(file.type)) {
-    return NextResponse.json({ error: "Upload a JPG, PNG, or WebP image." }, { status: 400 });
+  if (uploads.length === 0) {
+    return NextResponse.json({ error: "Choose at least one front or back image file." }, { status: 400 });
+  }
+
+  const invalidUpload = uploads.find((upload) => !(upload.file instanceof File) || !allowedTypes.has(upload.file.type));
+
+  if (invalidUpload) {
+    return NextResponse.json({ error: "Upload JPG, PNG, or WebP images only." }, { status: 400 });
   }
 
   const { data: card, error: cardError } = await supabase
@@ -52,39 +62,49 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Card not found." }, { status: 404 });
   }
 
-  const extension = file.type === "image/png" ? "png" : file.type === "image/jpeg" ? "jpg" : "webp";
-  const storagePath = `1989-upper-deck-baseball/${card.slug}-${side}-${Date.now()}.${extension}`;
-  const { error: uploadError } = await supabase.storage.from("card-scans").upload(storagePath, file, {
-    cacheControl: "31536000",
-    contentType: file.type,
-    upsert: false
-  });
+  const savedImages = [];
 
-  if (uploadError) {
-    return NextResponse.json({ error: uploadError.message }, { status: 500 });
-  }
+  for (const upload of uploads) {
+    if (!(upload.file instanceof File)) {
+      continue;
+    }
 
-  const { data: publicUrlData } = supabase.storage.from("card-scans").getPublicUrl(storagePath);
-  const imageUrl = publicUrlData.publicUrl;
+    const extension = upload.file.type === "image/png" ? "png" : upload.file.type === "image/jpeg" ? "jpg" : "webp";
+    const storagePath = `1989-upper-deck-baseball/${card.slug}-${upload.side}-${Date.now()}.${extension}`;
+    const { error: uploadError } = await supabase.storage.from("card-scans").upload(storagePath, upload.file, {
+      cacheControl: "31536000",
+      contentType: upload.file.type,
+      upsert: false
+    });
 
-  const { error: imageError } = await supabase.from("card_images").upsert(
-    {
-      card_id: card.id,
-      side,
-      image_url: imageUrl,
-      storage_path: storagePath,
-      status: "approved",
-      approved_at: new Date().toISOString()
-    },
-    { onConflict: "card_id,side" }
-  );
+    if (uploadError) {
+      return NextResponse.json({ error: uploadError.message }, { status: 500 });
+    }
 
-  if (imageError) {
-    return NextResponse.json({ error: imageError.message }, { status: 500 });
+    const { data: publicUrlData } = supabase.storage.from("card-scans").getPublicUrl(storagePath);
+    const imageUrl = publicUrlData.publicUrl;
+
+    const { error: imageError } = await supabase.from("card_images").upsert(
+      {
+        card_id: card.id,
+        side: upload.side,
+        image_url: imageUrl,
+        storage_path: storagePath,
+        status: "approved",
+        approved_at: new Date().toISOString()
+      },
+      { onConflict: "card_id,side" }
+    );
+
+    if (imageError) {
+      return NextResponse.json({ error: imageError.message }, { status: 500 });
+    }
+
+    savedImages.push({ side: upload.side, imageUrl, storagePath });
   }
 
   revalidatePath("/sets/1989-upper-deck-baseball");
   revalidatePath(`/cards/${card.slug}`);
 
-  return NextResponse.json({ cardSlug: card.slug, side, imageUrl, storagePath });
+  return NextResponse.json({ cardSlug: card.slug, images: savedImages });
 }
