@@ -29,6 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/admin/moderation" className="hover:text-archive-oxblood">
                 Admin
               </Link>
+              <Link href="/admin/card-image-uploader" className="hover:text-archive-oxblood">
+                Upload
+              </Link>
               <Link href="/admin/approved-scan-ingester" className="hover:text-archive-oxblood">
                 Ingest
               </Link>

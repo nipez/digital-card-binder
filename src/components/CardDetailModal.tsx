@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ImageOff, Medal, Sparkle } from "lucide-react";
+import { ArrowLeft, ImagePlus, ImageOff, Medal, Sparkle } from "lucide-react";
 import type { Card } from "@/types/binder";
 import { FlipCard } from "@/components/FlipCard";
 import { CollectionActions } from "@/components/CollectionActions";
@@ -11,6 +11,13 @@ export function CardDetailModal({ card }: { card: Card }) {
       <Link href="/sets/1989-upper-deck-baseball" className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-archive-oxblood">
         <ArrowLeft className="h-4 w-4" />
         Back to binder
+      </Link>
+      <Link
+        href={`/admin/card-image-uploader?cardSlug=${card.cardSlug}`}
+        className="mb-6 ml-3 inline-flex items-center gap-2 rounded-md border border-archive-ink/10 bg-white/72 px-3 py-2 text-sm font-bold text-archive-ink shadow-sm"
+      >
+        <ImagePlus className="h-4 w-4" />
+        Admin upload scan
       </Link>
       <section className="grid items-start gap-8 lg:grid-cols-[minmax(280px,360px)_1fr]">
         <div className="mx-auto w-full max-w-[360px]">
