@@ -1,6 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
-import { createAdminSupabaseClient } from "@/lib/supabase-admin";
+import { createAdminSupabaseClient, getAdminSupabaseConfigStatus } from "@/lib/supabase-admin";
 
 export const runtime = "nodejs";
 
@@ -22,7 +22,19 @@ export async function POST(request: Request) {
   const supabase = createAdminSupabaseClient();
 
   if (!supabase) {
-    return NextResponse.json({ error: "Supabase admin client is not configured." }, { status: 500 });
+    const config = getAdminSupabaseConfigStatus();
+
+    return NextResponse.json(
+      {
+        error: `Supabase admin client is not configured. Missing ${[
+          config.hasUrl ? null : "NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL",
+          config.hasAdminKey ? null : "SUPABASE_SERVICE_ROLE_KEY, SUPABASE_SECRET_KEY, SUPABASE_SERVICE_KEY, or SERVICE_ROLE_KEY"
+        ]
+          .filter(Boolean)
+          .join(" and ")}.`
+      },
+      { status: 500 }
+    );
   }
 
   const formData = await request.formData();
