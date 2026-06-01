@@ -1,7 +1,7 @@
 import { AdminCardImageUploader } from "@/components/AdminCardImageUploader";
 import { getUpperDeckSetData } from "@/lib/supabase-data";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function AdminCardImageUploaderPage({
   searchParams
