@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { CardDetailModal } from "@/components/CardDetailModal";
 import { getSupabaseCardBySlug, getUpperDeckSetData } from "@/lib/supabase-data";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   const { cards } = await getUpperDeckSetData();

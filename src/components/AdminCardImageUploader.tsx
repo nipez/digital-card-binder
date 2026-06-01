@@ -152,7 +152,7 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
             <li>1. Open a card page.</li>
             <li>2. Click Admin upload scan.</li>
             <li>3. Add front, back, or both in one save.</li>
-            <li>4. Refresh the card page after it saves.</li>
+            <li>4. Open the updated card page after it saves.</li>
           </ol>
         </section>
 
@@ -167,6 +167,14 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
               <Copy className="h-4 w-4" />
               Copy URLs
             </button>
+            {selectedCard ? (
+              <Link
+                href={`/cards/${selectedCard.cardSlug}`}
+                className="ml-2 mt-3 inline-flex items-center gap-2 rounded-md border border-archive-ink/10 bg-white px-3 py-2 text-sm font-bold text-archive-ink"
+              >
+                View updated card <ExternalLink className="h-4 w-4" />
+              </Link>
+            ) : null}
           </section>
         ) : null}
       </aside>

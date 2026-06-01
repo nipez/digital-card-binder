@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { SetBinderClient } from "@/components/SetBinderClient";
 import { buildTeams, getSupabaseTeams, getUpperDeckSetData } from "@/lib/supabase-data";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   const teams = await getSupabaseTeams();

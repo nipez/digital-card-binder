@@ -4,7 +4,7 @@ import { SetHeader } from "@/components/SetHeader";
 import { SetPackaging } from "@/components/SetPackaging";
 import { buildTeams, getUpperDeckSetData } from "@/lib/supabase-data";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function SetPage() {
   const { set, cards, source } = await getUpperDeckSetData();
