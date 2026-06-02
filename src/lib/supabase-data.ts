@@ -126,18 +126,43 @@ export async function getSupabaseAnyCardBySlug(cardSlug: string) {
 
   const card = mapCard(cardRow);
 
-  if (!setRow || setRow.slug === upperDeck1989Set.slug) {
-    return card;
+  return withSetMetadata(card, setRow ?? undefined);
+}
+
+export async function getSupabaseCardsByPlayerSlug(playerSlug: string) {
+  const supabase = createServerSupabaseClient();
+
+  if (!supabase) {
+    return demoCards.filter((card) => slugify(card.playerName) === playerSlug);
   }
 
-  return {
-    ...card,
-    setName: setRow.name,
-    year: String(setRow.year),
-    numberLabel: `#${card.number}`,
-    returnHref: `/players/${slugify(card.playerName)}`,
-    returnLabel: `Back to ${card.playerName}`
-  };
+  const { data: cardRows, error: cardsError } = await supabase
+    .from("cards")
+    .select(
+      "id, set_id, card_number, slug, player_name, team, team_slug, position, is_rookie, is_hall_of_famer, notes, card_images(side, image_url, status)"
+    )
+    .order("card_number", { ascending: true })
+    .returns<CardRow[]>();
+
+  if (cardsError || !cardRows) {
+    return demoCards.filter((card) => slugify(card.playerName) === playerSlug);
+  }
+
+  const playerRows = cardRows.filter((card) => slugify(card.player_name) === playerSlug);
+  const setIds = Array.from(new Set(playerRows.map((card) => card.set_id)));
+
+  if (setIds.length === 0) {
+    return [];
+  }
+
+  const { data: setRows } = await supabase
+    .from("sets")
+    .select("id, slug, name, year, manufacturer, total_cards, description")
+    .in("id", setIds)
+    .returns<SetRow[]>();
+  const setsById = new Map((setRows ?? []).map((set) => [set.id, set]));
+
+  return playerRows.map((row) => withSetMetadata(mapCard(row), setsById.get(row.set_id)));
 }
 
 export function buildTeams(cards: Card[]) {
@@ -180,5 +205,25 @@ function mapCard(row: CardRow): Card {
     isHallOfFamer: row.is_hall_of_famer,
     notes: row.notes ?? undefined,
     images
+  };
+}
+
+function withSetMetadata(card: Card, setRow?: SetRow): Card {
+  if (!setRow || setRow.slug === upperDeck1989Set.slug) {
+    return {
+      ...card,
+      setName: upperDeck1989Set.name,
+      year: String(upperDeck1989Set.year),
+      numberLabel: `#${card.number}`
+    };
+  }
+
+  return {
+    ...card,
+    setName: setRow.name,
+    year: String(setRow.year),
+    numberLabel: `#${card.number}`,
+    returnHref: `/players/${slugify(card.playerName)}`,
+    returnLabel: `Back to ${card.playerName}`
   };
 }

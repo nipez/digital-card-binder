@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ArrowLeft, Award, BookOpen, CalendarDays, Library, Lightbulb, Medal, Search, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 import { FlipCard } from "@/components/FlipCard";
-import { getPlayerCards, getPlayerProfile, getPlayerSlug } from "@/lib/player-profiles";
-import { getUpperDeckSetData } from "@/lib/supabase-data";
+import { getPlayerProfile, getPlayerSlug } from "@/lib/player-profiles";
+import { getSupabaseCardsByPlayerSlug, getUpperDeckSetData } from "@/lib/supabase-data";
 import type { Card } from "@/types/binder";
 
 export const dynamic = "force-dynamic";
@@ -16,8 +16,8 @@ export async function generateStaticParams() {
 export default async function PlayerProfilePage({ params }: { params: Promise<{ playerSlug: string }> }) {
   const { playerSlug } = await params;
   const { cards } = await getUpperDeckSetData();
-  const profile = getPlayerProfile(cards, playerSlug);
-  const playerCards = getPlayerCards(cards, playerSlug);
+  const playerCards = await getSupabaseCardsByPlayerSlug(playerSlug);
+  const profile = getPlayerProfile([...cards, ...playerCards], playerSlug);
 
   if (!profile) {
     notFound();
@@ -176,7 +176,7 @@ function HeroCard({ cards }: { cards: Card[] }) {
     <div className="mx-auto w-full max-w-[190px] min-[420px]:max-w-[220px] sm:max-w-[250px] lg:max-w-[260px]">
       <FlipCard card={card} large />
       <Link href={`/cards/${card.cardSlug}`} className="mt-3 block text-center text-sm font-bold text-archive-oxblood hover:underline">
-        View card #{card.number}
+        View card {card.numberLabel ?? `#${card.number}`}
       </Link>
     </div>
   );
@@ -188,8 +188,11 @@ function PlayerCardTile({ card }: { card: Card }) {
 
   return (
     <Link href={`/cards/${card.cardSlug}`} className="rounded-lg border border-archive-ink/10 bg-white/58 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
-      <p className="text-xs font-black uppercase text-archive-oxblood">1989 Upper Deck Baseball</p>
-      <h3 className="mt-1 font-display text-2xl font-bold">#{card.number}</h3>
+      <p className="text-xs font-black uppercase text-archive-oxblood">
+        {card.year ? `${card.year} ` : ""}
+        {card.setName ?? "Card"}
+      </p>
+      <h3 className="mt-1 font-display text-2xl font-bold">{card.numberLabel ?? `#${card.number}`}</h3>
       <p className="mt-1 text-sm font-semibold text-archive-ink/62">
         {card.team} • {card.position}
       </p>
