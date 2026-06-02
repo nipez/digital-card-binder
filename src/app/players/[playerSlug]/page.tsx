@@ -134,20 +134,25 @@ function KnownCardsPanel({ knownCards }: { knownCards: NonNullable<ReturnType<ty
           </div>
           <div className="divide-y divide-archive-ink/10">
             {knownCards.keyCards.map((card) => (
-              <article key={`${card.year}-${card.setName}-${card.cardNumber}`} className="grid gap-2 px-3 py-3 sm:grid-cols-[70px_minmax(0,1fr)_110px_120px] sm:gap-3">
+              <Link
+                key={`${card.year}-${card.setName}-${card.cardNumber}`}
+                href={`/cards/${card.slug}`}
+                className="grid gap-2 px-3 py-3 transition hover:bg-white/60 sm:grid-cols-[70px_minmax(0,1fr)_110px_120px] sm:gap-3"
+              >
                 <span className="font-display text-xl font-bold text-archive-oxblood sm:text-xl">{card.year}</span>
                 <span>
                   <span className="block font-bold">
                     {card.setName} <span className="text-archive-ink/48">{card.cardNumber}</span>
                   </span>
                   <span className="mt-1 block text-sm leading-6 text-archive-ink/62">{card.note}</span>
+                  <span className="mt-2 block text-xs font-black uppercase text-archive-oxblood/80">Open card page</span>
                 </span>
                 <span className="flex flex-wrap gap-2 sm:block">
                   <span className="rounded-md bg-archive-oxblood/10 px-2 py-1 text-xs font-bold text-archive-oxblood sm:bg-transparent sm:p-0 sm:text-sm sm:text-archive-ink/72">{card.category}</span>
                   <span className="rounded-md bg-archive-field/10 px-2 py-1 text-xs font-bold text-archive-field sm:hidden">{card.team ?? "Multiple"}</span>
                 </span>
                 <span className="hidden text-sm font-semibold text-archive-ink/54 sm:block">{card.team ?? "Multiple"}</span>
-              </article>
+              </Link>
             ))}
           </div>
         </div>

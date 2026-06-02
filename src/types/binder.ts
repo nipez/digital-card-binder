@@ -11,6 +11,12 @@ export type Card = {
   id: string;
   setId: string;
   number: number;
+  numberLabel?: string;
+  setName?: string;
+  year?: string;
+  category?: string;
+  returnHref?: string;
+  returnLabel?: string;
   playerName: string;
   team: string;
   teamSlug: string;

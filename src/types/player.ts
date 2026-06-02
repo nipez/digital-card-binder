@@ -18,6 +18,7 @@ export type PlayerProfile = {
     totalLabel: string;
     note: string;
     keyCards: {
+      slug: string;
       year: string;
       setName: string;
       cardNumber: string;

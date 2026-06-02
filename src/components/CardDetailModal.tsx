@@ -7,28 +7,46 @@ import { hasMissingScan } from "@/lib/demo-data";
 import { getPlayerSlug } from "@/lib/player-profiles";
 
 export function CardDetailModal({ card }: { card: Card }) {
+  const displayNumber = card.numberLabel ?? `#${card.number}`;
+  const backHref = card.returnHref ?? "/sets/1989-upper-deck-baseball";
+  const backLabel = card.returnLabel ?? "Back to binder";
+  const canAdminUpload = !card.setId.startsWith("player-universe-");
+
   return (
     <main className="mx-auto max-w-6xl px-5 py-6">
-      <Link href="/sets/1989-upper-deck-baseball" className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-archive-oxblood">
+      <Link href={backHref} className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-archive-oxblood">
         <ArrowLeft className="h-4 w-4" />
-        Back to binder
+        {backLabel}
       </Link>
-      <Link
-        href={`/admin/card-image-uploader?cardSlug=${card.cardSlug}`}
-        className="mb-6 ml-3 inline-flex items-center gap-2 rounded-md border border-archive-ink/10 bg-white/72 px-3 py-2 text-sm font-bold text-archive-ink shadow-sm"
-      >
-        <ImagePlus className="h-4 w-4" />
-        Admin upload scan
-      </Link>
+      {canAdminUpload ? (
+        <Link
+          href={`/admin/card-image-uploader?cardSlug=${card.cardSlug}`}
+          className="mb-6 ml-3 inline-flex items-center gap-2 rounded-md border border-archive-ink/10 bg-white/72 px-3 py-2 text-sm font-bold text-archive-ink shadow-sm"
+        >
+          <ImagePlus className="h-4 w-4" />
+          Admin upload scan
+        </Link>
+      ) : (
+        <Link
+          href="/submit-scan"
+          className="mb-6 ml-3 inline-flex items-center gap-2 rounded-md border border-archive-ink/10 bg-white/72 px-3 py-2 text-sm font-bold text-archive-ink shadow-sm"
+        >
+          <ImagePlus className="h-4 w-4" />
+          Submit front/back scans
+        </Link>
+      )}
       <section className="grid items-start gap-8 lg:grid-cols-[minmax(280px,360px)_1fr]">
         <div className="mx-auto w-full max-w-[360px]">
           <FlipCard card={card} large />
           <p className="mt-3 text-center text-sm font-bold text-archive-ink/70">
-            #{card.number} {card.playerName} • {card.team}
+            {displayNumber} {card.playerName} • {card.team}
           </p>
         </div>
         <div className="rounded-lg border border-archive-ink/10 bg-white/62 p-6 shadow-card">
-          <p className="text-sm font-bold uppercase text-archive-oxblood">Card #{card.number}</p>
+          <p className="text-sm font-bold uppercase text-archive-oxblood">
+            {card.year ? `${card.year} ` : ""}
+            {card.setName ?? "Card"} {displayNumber}
+          </p>
           <h1 className="mt-2 font-display text-5xl font-bold">
             <Link href={`/players/${getPlayerSlug(card.playerName)}`} className="transition hover:text-archive-oxblood">
               {card.playerName}
@@ -40,6 +58,7 @@ export function CardDetailModal({ card }: { card: Card }) {
           <div className="mt-5 flex flex-wrap gap-2">
             {card.isRookie ? <Badge icon={<Sparkle className="h-4 w-4" />} label="Rookie card" /> : null}
             {card.isHallOfFamer ? <Badge icon={<Medal className="h-4 w-4" />} label="Hall of Famer" /> : null}
+            {card.category && !card.isRookie ? <Badge icon={<Sparkle className="h-4 w-4" />} label={card.category} /> : null}
             {hasMissingScan(card) ? <Badge icon={<ImageOff className="h-4 w-4" />} label="Scan needed" /> : null}
           </div>
           <p className="mt-6 leading-7 text-archive-ink/72">{card.notes}</p>
@@ -53,7 +72,7 @@ export function CardDetailModal({ card }: { card: Card }) {
               {card.images.map((image) => (
                 <div key={image.side} className="rounded-md border border-archive-ink/10 bg-archive-paper/60 p-3">
                   <p className="font-bold capitalize">{image.side}</p>
-                  <p className="text-sm text-archive-ink/62">{image.status === "missing" ? `${image.side} scan needed` : "Approved demo placeholder"}</p>
+                  <p className="text-sm text-archive-ink/62">{image.status === "missing" ? `${image.side} scan needed` : "Approved scan available"}</p>
                 </div>
               ))}
             </div>

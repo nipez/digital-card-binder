@@ -1,12 +1,14 @@
 import { notFound, redirect } from "next/navigation";
 import { CardDetailModal } from "@/components/CardDetailModal";
+import { getKnownPlayerCardBySlug, getKnownPlayerCards } from "@/lib/player-profiles";
 import { getSupabaseCardBySlug, getUpperDeckSetData } from "@/lib/supabase-data";
 
 export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   const { cards } = await getUpperDeckSetData();
-  return cards.map((card) => ({ cardSlug: card.cardSlug }));
+  const knownCards = getKnownPlayerCards("ken-griffey-jr");
+  return [...cards.map((card) => ({ cardSlug: card.cardSlug })), ...knownCards.map((card) => ({ cardSlug: card.slug }))];
 }
 
 export default async function CardPage({ params }: { params: Promise<{ cardSlug: string }> }) {
@@ -16,7 +18,7 @@ export default async function CardPage({ params }: { params: Promise<{ cardSlug:
     redirect("/cards/9-gregg-jefferies");
   }
 
-  const card = await getSupabaseCardBySlug(cardSlug);
+  const card = (await getSupabaseCardBySlug(cardSlug)) ?? getKnownPlayerCardBySlug(cardSlug);
 
   if (!card) {
     notFound();

@@ -42,6 +42,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
         "The full Griffey checklist is too large for a hand-built prototype. This section starts with a curated key-card list and gives us the structure for importing owned, licensed, or explicitly permissioned checklist data later.",
       keyCards: [
         {
+          slug: "1-ken-griffey-jr",
           year: "1989",
           setName: "Upper Deck Baseball",
           cardNumber: "#1",
@@ -50,6 +51,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "The signature card of Upper Deck's debut baseball release and the anchor card for this archive."
         },
         {
+          slug: "1989-bowman-220-ken-griffey-jr",
           year: "1989",
           setName: "Bowman Baseball",
           cardNumber: "#220",
@@ -58,6 +60,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "Oversized Bowman rookie-era card with classic late-1980s checklist appeal."
         },
         {
+          slug: "1989-donruss-33-ken-griffey-jr",
           year: "1989",
           setName: "Donruss Baseball",
           cardNumber: "#33",
@@ -66,6 +69,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "One of the core mainstream Griffey rookie cards collectors usually group together."
         },
         {
+          slug: "1989-fleer-548-ken-griffey-jr",
           year: "1989",
           setName: "Fleer Baseball",
           cardNumber: "#548",
@@ -74,6 +78,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "Another essential mass-market rookie from Griffey's first hobby year."
         },
         {
+          slug: "1989-score-traded-100t-ken-griffey-jr",
           year: "1989",
           setName: "Score Traded Baseball",
           cardNumber: "#100T",
@@ -82,6 +87,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "A key traded-set rookie that often sits beside Upper Deck in starter Griffey runs."
         },
         {
+          slug: "1989-topps-traded-41t-ken-griffey-jr",
           year: "1989",
           setName: "Topps Traded Baseball",
           cardNumber: "#41T",
@@ -90,6 +96,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "Topps' traded-set Griffey rookie and a foundational card for brand-by-brand collecting."
         },
         {
+          slug: "1990-topps-336-ken-griffey-jr",
           year: "1990",
           setName: "Topps Baseball",
           cardNumber: "#336",
@@ -98,6 +105,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "A nostalgic early-career flagship card from the junk-wax peak."
         },
         {
+          slug: "1990-upper-deck-156-ken-griffey-jr",
           year: "1990",
           setName: "Upper Deck Baseball",
           cardNumber: "#156",
@@ -106,6 +114,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "An early Upper Deck follow-up that pairs naturally with the 1989 rookie."
         },
         {
+          slug: "1993-sp-4-ken-griffey-jr",
           year: "1993",
           setName: "SP Baseball",
           cardNumber: "#4",
@@ -114,6 +123,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "Part of Upper Deck's premium SP line as the hobby moved into foil, gloss, and chase design."
         },
         {
+          slug: "1994-upper-deck-53-ken-griffey-jr",
           year: "1994",
           setName: "Upper Deck Baseball",
           cardNumber: "#53",
@@ -122,6 +132,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "Known for the fence-climb image, a great example of why image-led browsing matters."
         },
         {
+          slug: "1997-bowmans-best-atomic-refractor-ken-griffey-jr",
           year: "1997",
           setName: "Bowman's Best Atomic Refractor",
           cardNumber: "varies",
@@ -130,6 +141,7 @@ const knownProfiles: Record<string, PlayerProfile> = {
           note: "A useful future category example for premium parallels and refractor-style variants."
         },
         {
+          slug: "1998-donruss-crusade-ken-griffey-jr",
           year: "1998",
           setName: "Donruss Crusade",
           cardNumber: "varies",
@@ -182,6 +194,56 @@ export function getPlayerProfile(cards: Card[], playerSlug: string): PlayerProfi
     collectingNotes: [
       "Future versions can group this player's cards by year, brand, team, scan completion, and ownership status.",
       "Use this page as the permanent URL for every card connected to this player."
+    ]
+  };
+}
+
+export function getKnownPlayerCards(playerSlug: string) {
+  return knownProfiles[playerSlug]?.knownCards?.keyCards ?? [];
+}
+
+export function getKnownPlayerCardBySlug(cardSlug: string): Card | null {
+  const profile = Object.values(knownProfiles).find((knownProfile) =>
+    knownProfile.knownCards?.keyCards.some((knownCard) => knownCard.slug === cardSlug)
+  );
+
+  const knownCard = profile?.knownCards?.keyCards.find((card) => card.slug === cardSlug);
+
+  if (!profile || !knownCard) {
+    return null;
+  }
+
+  const numericNumber = Number.parseInt(knownCard.cardNumber.replace(/[^0-9]/g, ""), 10);
+
+  return {
+    id: knownCard.slug,
+    setId: `player-universe-${profile.slug}`,
+    number: Number.isFinite(numericNumber) ? numericNumber : 0,
+    numberLabel: knownCard.cardNumber,
+    setName: knownCard.setName,
+    year: knownCard.year,
+    category: knownCard.category,
+    returnHref: `/players/${profile.slug}`,
+    returnLabel: `Back to ${profile.displayName}`,
+    playerName: profile.displayName,
+    team: knownCard.team ?? profile.teams[0] ?? "Multiple teams",
+    teamSlug: slugify(knownCard.team ?? profile.teams[0] ?? "multiple-teams"),
+    cardSlug: knownCard.slug,
+    position: profile.positions[0] ?? "",
+    isRookie: knownCard.category.toLowerCase().includes("rookie"),
+    isHallOfFamer: true,
+    notes: knownCard.note,
+    images: [
+      {
+        side: "front",
+        status: "missing",
+        imageUrl: "/placeholders/front-needed.svg"
+      },
+      {
+        side: "back",
+        status: "missing",
+        imageUrl: "/placeholders/back-needed.svg"
+      }
     ]
   };
 }
