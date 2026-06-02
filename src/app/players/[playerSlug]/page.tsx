@@ -25,22 +25,22 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(181,138,67,0.18),transparent_32%),linear-gradient(90deg,rgba(110,47,43,0.08)_0_1px,transparent_1px_100%),linear-gradient(rgba(47,107,79,0.07)_0_1px,transparent_1px_100%),#f7efe0] bg-[length:auto,42px_42px,42px_42px,auto]">
-      <div className="mx-auto grid max-w-7xl gap-6 px-5 py-8">
+      <div className="mx-auto grid max-w-7xl gap-4 px-4 py-5 sm:gap-6 sm:px-5 sm:py-8">
         <Link href="/sets/1989-upper-deck-baseball" className="inline-flex w-fit items-center gap-2 text-sm font-bold text-archive-oxblood">
           <ArrowLeft className="h-4 w-4" />
           Back to binder
         </Link>
 
         <section className="overflow-hidden rounded-lg border border-white/74 bg-white/66 shadow-card backdrop-blur">
-          <div className="grid items-center gap-6 p-5 md:p-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:p-7">
+          <div className="grid items-center gap-5 p-4 sm:p-5 md:p-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:p-7">
             <div>
               <p className="mb-3 inline-flex w-fit items-center gap-2 rounded-md border border-archive-oxblood/18 bg-archive-oxblood/10 px-3 py-1 text-xs font-black uppercase text-archive-oxblood">
                 <Sparkles className="h-4 w-4" />
                 Player archive
               </p>
-              <h1 className="font-display text-5xl font-bold leading-tight md:text-7xl">{profile.displayName}</h1>
-              <p className="mt-3 max-w-3xl text-lg leading-8 text-archive-ink/72">{profile.dek}</p>
-              <div className="mt-5 flex flex-wrap gap-2">
+              <h1 className="font-display text-4xl font-bold leading-[0.98] sm:text-5xl md:text-7xl">{profile.displayName}</h1>
+              <p className="mt-3 max-w-3xl text-base leading-7 text-archive-ink/72 sm:text-lg sm:leading-8">{profile.dek}</p>
+              <div className="mt-4 grid grid-cols-2 gap-2 min-[440px]:flex min-[440px]:flex-wrap sm:mt-5">
                 {profile.heroStat ? <HeroBadge icon={<Award className="h-4 w-4" />} label={profile.heroStat} /> : null}
                 {profile.careerYears ? <HeroBadge icon={<CalendarDays className="h-4 w-4" />} label={profile.careerYears} /> : null}
                 {profile.positions.length > 0 ? <HeroBadge icon={<Medal className="h-4 w-4" />} label={profile.positions.join(" / ")} /> : null}
@@ -51,8 +51,8 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
           </div>
         </section>
 
-        <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="grid content-start gap-5">
+        <section className="grid items-start gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="grid content-start gap-4 sm:gap-5">
             <ProfilePanel icon={<BookOpen className="h-5 w-5" />} title="Bio">
               <div className="grid gap-4 text-base leading-8 text-archive-ink/72">
                 {profile.bio.map((paragraph) => (
@@ -72,7 +72,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             {profile.knownCards ? <KnownCardsPanel knownCards={profile.knownCards} /> : null}
           </div>
 
-          <aside className="grid content-start gap-5">
+          <aside className="grid content-start gap-4 sm:gap-5">
             <ProfilePanel icon={<Lightbulb className="h-5 w-5" />} title="Did You Know">
               <ul className="grid gap-3 text-sm leading-6 text-archive-ink/72">
                 {profile.trivia.map((fact) => (
@@ -126,23 +126,26 @@ function KnownCardsPanel({ knownCards }: { knownCards: NonNullable<ReturnType<ty
         </div>
 
         <div className="overflow-hidden rounded-lg border border-archive-ink/10 bg-white/48">
-          <div className="grid grid-cols-[70px_minmax(0,1fr)_92px] gap-3 border-b border-archive-ink/10 px-3 py-2 text-xs font-black uppercase text-archive-ink/48 sm:grid-cols-[70px_minmax(0,1fr)_110px_120px]">
+          <div className="hidden border-b border-archive-ink/10 px-3 py-2 text-xs font-black uppercase text-archive-ink/48 sm:grid sm:grid-cols-[70px_minmax(0,1fr)_110px_120px] sm:gap-3">
             <span>Year</span>
             <span>Card</span>
             <span>Type</span>
-            <span className="hidden sm:block">Team</span>
+            <span>Team</span>
           </div>
           <div className="divide-y divide-archive-ink/10">
             {knownCards.keyCards.map((card) => (
-              <article key={`${card.year}-${card.setName}-${card.cardNumber}`} className="grid grid-cols-[70px_minmax(0,1fr)_92px] gap-3 px-3 py-3 sm:grid-cols-[70px_minmax(0,1fr)_110px_120px]">
-                <span className="font-display text-xl font-bold text-archive-oxblood">{card.year}</span>
+              <article key={`${card.year}-${card.setName}-${card.cardNumber}`} className="grid gap-2 px-3 py-3 sm:grid-cols-[70px_minmax(0,1fr)_110px_120px] sm:gap-3">
+                <span className="font-display text-xl font-bold text-archive-oxblood sm:text-xl">{card.year}</span>
                 <span>
                   <span className="block font-bold">
                     {card.setName} <span className="text-archive-ink/48">{card.cardNumber}</span>
                   </span>
                   <span className="mt-1 block text-sm leading-6 text-archive-ink/62">{card.note}</span>
                 </span>
-                <span className="text-sm font-bold text-archive-ink/72">{card.category}</span>
+                <span className="flex flex-wrap gap-2 sm:block">
+                  <span className="rounded-md bg-archive-oxblood/10 px-2 py-1 text-xs font-bold text-archive-oxblood sm:bg-transparent sm:p-0 sm:text-sm sm:text-archive-ink/72">{card.category}</span>
+                  <span className="rounded-md bg-archive-field/10 px-2 py-1 text-xs font-bold text-archive-field sm:hidden">{card.team ?? "Multiple"}</span>
+                </span>
                 <span className="hidden text-sm font-semibold text-archive-ink/54 sm:block">{card.team ?? "Multiple"}</span>
               </article>
             ))}
@@ -165,7 +168,7 @@ function HeroCard({ cards }: { cards: Card[] }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[220px] sm:max-w-[250px] lg:max-w-[260px]">
+    <div className="mx-auto w-full max-w-[190px] min-[420px]:max-w-[220px] sm:max-w-[250px] lg:max-w-[260px]">
       <FlipCard card={card} large />
       <Link href={`/cards/${card.cardSlug}`} className="mt-3 block text-center text-sm font-bold text-archive-oxblood hover:underline">
         View card #{card.number}
@@ -199,9 +202,9 @@ function PlayerCardTile({ card }: { card: Card }) {
 
 function ProfilePanel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <section className="self-start rounded-lg border border-white/74 bg-white/68 p-5 shadow-sm backdrop-blur">
-      <h2 className="mb-4 flex items-center gap-2 font-display text-3xl font-bold">
-        <span className="grid h-9 w-9 place-items-center rounded-md bg-archive-oxblood/10 text-archive-oxblood">{icon}</span>
+    <section className="self-start rounded-lg border border-white/74 bg-white/68 p-4 shadow-sm backdrop-blur sm:p-5">
+      <h2 className="mb-4 flex items-center gap-2 font-display text-2xl font-bold sm:text-3xl">
+        <span className="grid h-8 w-8 place-items-center rounded-md bg-archive-oxblood/10 text-archive-oxblood sm:h-9 sm:w-9">{icon}</span>
         {title}
       </h2>
       {children}
@@ -211,9 +214,9 @@ function ProfilePanel({ icon, title, children }: { icon: React.ReactNode; title:
 
 function HeroBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-md border border-archive-ink/10 bg-white/62 px-3 py-2 text-sm font-bold text-archive-ink">
+    <span className="inline-flex min-w-0 items-center gap-2 rounded-md border border-archive-ink/10 bg-white/62 px-3 py-2 text-sm font-bold text-archive-ink">
       {icon}
-      {label}
+      <span className="truncate">{label}</span>
     </span>
   );
 }
