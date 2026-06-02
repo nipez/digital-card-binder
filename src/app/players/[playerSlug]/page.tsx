@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Award, BookOpen, CalendarDays, ExternalLink, Library, Lightbulb, Medal, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, Award, BookOpen, CalendarDays, Library, Lightbulb, Medal, Search, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 import { FlipCard } from "@/components/FlipCard";
 import { getPlayerCards, getPlayerProfile, getPlayerSlug } from "@/lib/player-profiles";
@@ -120,16 +120,8 @@ function KnownCardsPanel({ knownCards }: { knownCards: NonNullable<ReturnType<ty
     <ProfilePanel icon={<Search className="h-5 w-5" />} title="Known Card Universe">
       <div className="grid gap-4">
         <div className="rounded-lg border border-archive-field/15 bg-archive-field/8 p-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase text-archive-field">External checklist scale</p>
-              <p className="mt-1 font-display text-3xl font-bold">{knownCards.totalLabel}</p>
-            </div>
-            <a href={knownCards.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-archive-ink/10 bg-white/70 px-3 py-2 text-sm font-bold text-archive-ink transition hover:text-archive-oxblood">
-              {knownCards.sourceName}
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </div>
+          <p className="text-xs font-black uppercase text-archive-field">Estimated checklist scale</p>
+          <p className="mt-1 font-display text-3xl font-bold">{knownCards.totalLabel}</p>
           <p className="mt-3 text-sm leading-6 text-archive-ink/68">{knownCards.note}</p>
         </div>
 

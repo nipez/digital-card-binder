@@ -37,11 +37,9 @@ const knownProfiles: Record<string, PlayerProfile> = {
       "The player page can become the collector's map: by year, set, brand, team, scan status, and ownership."
     ],
     knownCards: {
-      totalLabel: "7,108 TCDB-listed cards",
-      sourceName: "Trading Card Database",
-      sourceUrl: "https://www.tcdb.com/Person.cfm/pid/1494/Ken-Griffey-Jr.",
+      totalLabel: "7,000+ known card appearances",
       note:
-        "The full Griffey checklist is too large for a hand-built prototype. This section starts with a curated key-card list and gives us the structure for importing the full player checklist later.",
+        "The full Griffey checklist is too large for a hand-built prototype. This section starts with a curated key-card list and gives us the structure for importing owned, licensed, or explicitly permissioned checklist data later.",
       keyCards: [
         {
           year: "1989",

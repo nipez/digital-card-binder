@@ -16,8 +16,6 @@ export type PlayerProfile = {
   collectingNotes: string[];
   knownCards?: {
     totalLabel: string;
-    sourceName: string;
-    sourceUrl: string;
     note: string;
     keyCards: {
       year: string;
