@@ -1,5 +1,7 @@
 import { ModerationQueue } from "@/components/ModerationQueue";
 
+export const dynamic = "force-dynamic";
+
 export default function AdminModerationPage() {
   return (
     <main className="mx-auto grid max-w-6xl gap-6 px-5 py-8">
