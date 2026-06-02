@@ -202,6 +202,12 @@ export function getKnownPlayerCards(playerSlug: string) {
   return knownProfiles[playerSlug]?.knownCards?.keyCards ?? [];
 }
 
+export function getKnownPlayerCardPrototypes() {
+  return Object.values(knownProfiles).flatMap((profile) =>
+    (profile.knownCards?.keyCards ?? []).map((knownCard) => getKnownPlayerCardBySlug(knownCard.slug)).filter((card): card is Card => Boolean(card))
+  );
+}
+
 export function getKnownPlayerCardBySlug(cardSlug: string): Card | null {
   const profile = Object.values(knownProfiles).find((knownProfile) =>
     knownProfile.knownCards?.keyCards.some((knownCard) => knownCard.slug === cardSlug)

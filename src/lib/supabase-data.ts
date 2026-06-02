@@ -1,5 +1,6 @@
 import { demoCards, getCardBySlug, getTeamCards, getTeams, upperDeck1989Set } from "@/lib/demo-data";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { slugify } from "@/lib/utils";
 import type { Card, CardImage, SetSummary } from "@/types/binder";
 
 type CardRow = {
@@ -96,6 +97,47 @@ export async function getSupabaseCardBySlug(cardSlug: string) {
   }
 
   return cards.find((card) => card.cardSlug === cardSlug);
+}
+
+export async function getSupabaseAnyCardBySlug(cardSlug: string) {
+  const supabase = createServerSupabaseClient();
+
+  if (!supabase) {
+    return getCardBySlug(cardSlug);
+  }
+
+  const { data: cardRow, error: cardError } = await supabase
+    .from("cards")
+    .select(
+      "id, set_id, card_number, slug, player_name, team, team_slug, position, is_rookie, is_hall_of_famer, notes, card_images(side, image_url, status)"
+    )
+    .eq("slug", cardSlug)
+    .single<CardRow>();
+
+  if (cardError || !cardRow) {
+    return null;
+  }
+
+  const { data: setRow } = await supabase
+    .from("sets")
+    .select("id, slug, name, year, manufacturer, total_cards, description")
+    .eq("id", cardRow.set_id)
+    .single<SetRow>();
+
+  const card = mapCard(cardRow);
+
+  if (!setRow || setRow.slug === upperDeck1989Set.slug) {
+    return card;
+  }
+
+  return {
+    ...card,
+    setName: setRow.name,
+    year: String(setRow.year),
+    numberLabel: `#${card.number}`,
+    returnHref: `/players/${slugify(card.playerName)}`,
+    returnLabel: `Back to ${card.playerName}`
+  };
 }
 
 export function buildTeams(cards: Card[]) {

@@ -127,7 +127,9 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
             >
               {cards.map((card) => (
                 <option key={card.id} value={card.cardSlug}>
-                  #{card.number} {card.playerName} - {card.team}
+                  {card.year ? `${card.year} ` : ""}
+                  {card.setName ? `${card.setName} ` : ""}
+                  {card.numberLabel ?? `#${card.number}`} {card.playerName} - {card.team}
                 </option>
               ))}
             </select>
@@ -241,7 +243,9 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
           {selectedCard ? (
             <div className="mt-3 grid gap-2 text-sm">
               <p className="font-bold">
-                #{selectedCard.number} {selectedCard.playerName}
+                {selectedCard.year ? `${selectedCard.year} ` : ""}
+                {selectedCard.setName ? `${selectedCard.setName} ` : ""}
+                {selectedCard.numberLabel ?? `#${selectedCard.number}`} {selectedCard.playerName}
               </p>
               <p className="text-archive-ink/62">{selectedCard.team}</p>
               <p className="font-bold text-archive-oxblood">

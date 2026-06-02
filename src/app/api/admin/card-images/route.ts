@@ -1,6 +1,8 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { getKnownPlayerCardBySlug } from "@/lib/player-profiles";
 import { createAdminSupabaseClient, getAdminSupabaseConfigStatus } from "@/lib/supabase-admin";
+import { slugify } from "@/lib/utils";
 
 export const runtime = "nodejs";
 
@@ -64,14 +66,79 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Upload JPG, PNG, or WebP images only." }, { status: 400 });
   }
 
-  const { data: card, error: cardError } = await supabase
+  let { data: card, error: cardError } = await supabase
     .from("cards")
     .select("id, slug")
     .eq("slug", cardSlug)
     .single<{ id: string; slug: string }>();
 
   if (cardError || !card) {
-    return NextResponse.json({ error: "Card not found." }, { status: 404 });
+    const prototypeCard = getKnownPlayerCardBySlug(cardSlug);
+
+    if (!prototypeCard?.setName || !prototypeCard.year) {
+      return NextResponse.json({ error: "Card not found." }, { status: 404 });
+    }
+
+    const setSlug = slugify(`${prototypeCard.year}-${prototypeCard.setName}`);
+    const manufacturer = getManufacturerName(prototypeCard.setName);
+    const { data: setRow, error: setError } = await supabase
+      .from("sets")
+      .upsert(
+        {
+          slug: setSlug,
+          name: prototypeCard.setName,
+          year: Number(prototypeCard.year),
+          manufacturer,
+          total_cards: 1,
+          description: `Prototype archive set record for ${prototypeCard.playerName} card uploads.`
+        },
+        { onConflict: "slug" }
+      )
+      .select("id, slug")
+      .single<{ id: string; slug: string }>();
+
+    if (setError || !setRow) {
+      return NextResponse.json({ error: setError?.message ?? "Could not create card set." }, { status: 500 });
+    }
+
+    const { data: createdCard, error: createCardError } = await supabase
+      .from("cards")
+      .upsert(
+        {
+          set_id: setRow.id,
+          card_number: prototypeCard.number,
+          slug: prototypeCard.cardSlug,
+          player_name: prototypeCard.playerName,
+          team: prototypeCard.team,
+          team_slug: prototypeCard.teamSlug,
+          position: prototypeCard.position,
+          is_rookie: prototypeCard.isRookie,
+          is_hall_of_famer: prototypeCard.isHallOfFamer,
+          notes: prototypeCard.notes
+        },
+        { onConflict: "slug" }
+      )
+      .select("id, slug")
+      .single<{ id: string; slug: string }>();
+
+    if (createCardError || !createdCard) {
+      return NextResponse.json({ error: createCardError?.message ?? "Could not create card." }, { status: 500 });
+    }
+
+    const { error: missingImagesError } = await supabase.from("card_images").upsert(
+      [
+        { card_id: createdCard.id, side: "front", image_url: null, status: "missing" },
+        { card_id: createdCard.id, side: "back", image_url: null, status: "missing" }
+      ],
+      { onConflict: "card_id,side" }
+    );
+
+    if (missingImagesError) {
+      return NextResponse.json({ error: missingImagesError.message }, { status: 500 });
+    }
+
+    card = createdCard;
+    cardError = null;
   }
 
   const savedImages = [];
@@ -82,7 +149,7 @@ export async function POST(request: Request) {
     }
 
     const extension = upload.file.type === "image/png" ? "png" : upload.file.type === "image/jpeg" ? "jpg" : "webp";
-    const storagePath = `1989-upper-deck-baseball/${card.slug}-${upload.side}-${Date.now()}.${extension}`;
+    const storagePath = `${getStorageFolder(cardSlug)}/${card.slug}-${upload.side}-${Date.now()}.${extension}`;
     const { error: uploadError } = await supabase.storage.from("card-scans").upload(storagePath, upload.file, {
       cacheControl: "31536000",
       contentType: upload.file.type,
@@ -117,6 +184,23 @@ export async function POST(request: Request) {
 
   revalidatePath("/sets/1989-upper-deck-baseball");
   revalidatePath(`/cards/${card.slug}`);
+  revalidatePath("/players/ken-griffey-jr");
 
   return NextResponse.json({ cardSlug: card.slug, images: savedImages });
+}
+
+function getStorageFolder(cardSlug: string) {
+  return cardSlug.match(/^[0-9]{1,3}-/) ? "1989-upper-deck-baseball" : "player-universe";
+}
+
+function getManufacturerName(setName: string) {
+  if (setName.includes("Upper Deck")) {
+    return "Upper Deck";
+  }
+
+  if (setName.includes("Bowman")) {
+    return "Bowman";
+  }
+
+  return setName.split(" ")[0] ?? setName;
 }
