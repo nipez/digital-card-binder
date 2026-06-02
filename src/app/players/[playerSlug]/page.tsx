@@ -69,7 +69,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
               </div>
             </ProfilePanel>
 
-            {profile.knownCards ? <KnownCardsPanel knownCards={profile.knownCards} /> : null}
+            {profile.knownCards ? <KnownCardsPanel knownCards={profile.knownCards} archivedCards={playerCards} /> : null}
           </div>
 
           <aside className="grid content-start gap-4 sm:gap-5">
@@ -111,10 +111,18 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
   );
 }
 
-function KnownCardsPanel({ knownCards }: { knownCards: NonNullable<ReturnType<typeof getPlayerProfile>>["knownCards"] }) {
+function KnownCardsPanel({
+  knownCards,
+  archivedCards
+}: {
+  knownCards: NonNullable<ReturnType<typeof getPlayerProfile>>["knownCards"];
+  archivedCards: Card[];
+}) {
   if (!knownCards) {
     return null;
   }
+
+  const archivedCardsBySlug = new Map(archivedCards.map((card) => [card.cardSlug, card]));
 
   return (
     <ProfilePanel icon={<Search className="h-5 w-5" />} title="Known Card Universe">
@@ -126,34 +134,56 @@ function KnownCardsPanel({ knownCards }: { knownCards: NonNullable<ReturnType<ty
         </div>
 
         <div className="overflow-hidden rounded-lg border border-archive-ink/10 bg-white/48">
-          <div className="hidden border-b border-archive-ink/10 px-3 py-2 text-xs font-black uppercase text-archive-ink/48 sm:grid sm:grid-cols-[70px_minmax(0,1fr)_110px_120px] sm:gap-3">
+          <div className="hidden border-b border-archive-ink/10 px-3 py-2 text-xs font-black uppercase text-archive-ink/48 sm:grid sm:grid-cols-[58px_70px_minmax(0,1fr)_110px_120px_116px] sm:gap-3">
+            <span>Scan</span>
             <span>Year</span>
             <span>Card</span>
             <span>Type</span>
             <span>Team</span>
+            <span>Library</span>
           </div>
           <div className="divide-y divide-archive-ink/10">
-            {knownCards.keyCards.map((card) => (
-              <Link
-                key={`${card.year}-${card.setName}-${card.cardNumber}`}
-                href={`/cards/${card.slug}`}
-                className="grid gap-2 px-3 py-3 transition hover:bg-white/60 sm:grid-cols-[70px_minmax(0,1fr)_110px_120px] sm:gap-3"
-              >
-                <span className="font-display text-xl font-bold text-archive-oxblood sm:text-xl">{card.year}</span>
-                <span>
-                  <span className="block font-bold">
-                    {card.setName} <span className="text-archive-ink/48">{card.cardNumber}</span>
+            {knownCards.keyCards.map((card) => {
+              const archivedCard = archivedCardsBySlug.get(card.slug);
+              return (
+                <Link
+                  key={`${card.year}-${card.setName}-${card.cardNumber}`}
+                  href={`/cards/${card.slug}`}
+                  className="grid gap-3 px-3 py-3 transition hover:bg-white/60 sm:grid-cols-[58px_70px_minmax(0,1fr)_110px_120px_116px] sm:gap-3"
+                >
+                  <span className="w-14 overflow-hidden rounded-md border border-archive-ink/10 bg-archive-paper/70 p-1 shadow-sm">
+                    {archivedCard ? (
+                      <FlipCard card={archivedCard} interactive={false} />
+                    ) : (
+                      <span className="grid aspect-[2.5/3.5] place-items-center rounded bg-white/60 text-center text-[9px] font-black uppercase leading-tight text-archive-ink/38">
+                        Scan needed
+                      </span>
+                    )}
                   </span>
-                  <span className="mt-1 block text-sm leading-6 text-archive-ink/62">{card.note}</span>
-                  <span className="mt-2 block text-xs font-black uppercase text-archive-oxblood/80">Open card page</span>
-                </span>
-                <span className="flex flex-wrap gap-2 sm:block">
-                  <span className="rounded-md bg-archive-oxblood/10 px-2 py-1 text-xs font-bold text-archive-oxblood sm:bg-transparent sm:p-0 sm:text-sm sm:text-archive-ink/72">{card.category}</span>
-                  <span className="rounded-md bg-archive-field/10 px-2 py-1 text-xs font-bold text-archive-field sm:hidden">{card.team ?? "Multiple"}</span>
-                </span>
-                <span className="hidden text-sm font-semibold text-archive-ink/54 sm:block">{card.team ?? "Multiple"}</span>
-              </Link>
-            ))}
+                  <span className="font-display text-xl font-bold text-archive-oxblood sm:text-xl">{card.year}</span>
+                  <span>
+                    <span className="block font-bold">
+                      {card.setName} <span className="text-archive-ink/48">{card.cardNumber}</span>
+                    </span>
+                    <span className="mt-1 block text-sm leading-6 text-archive-ink/62">{card.note}</span>
+                    <span className="mt-2 block text-xs font-black uppercase text-archive-oxblood/80">Open card page</span>
+                  </span>
+                  <span className="flex flex-wrap gap-2 sm:block">
+                    <span className="rounded-md bg-archive-oxblood/10 px-2 py-1 text-xs font-bold text-archive-oxblood sm:bg-transparent sm:p-0 sm:text-sm sm:text-archive-ink/72">{card.category}</span>
+                    <span className="rounded-md bg-archive-field/10 px-2 py-1 text-xs font-bold text-archive-field sm:hidden">{card.team ?? "Multiple"}</span>
+                    <span className={`rounded-md px-2 py-1 text-xs font-bold sm:hidden ${archivedCard ? "bg-archive-field/10 text-archive-field" : "bg-archive-ink/8 text-archive-ink/54"}`}>
+                      {archivedCard ? "In archive" : "Not added"}
+                    </span>
+                  </span>
+                  <span className="hidden text-sm font-semibold text-archive-ink/54 sm:block">{card.team ?? "Multiple"}</span>
+                  <span className="hidden sm:block">
+                    <span className={`rounded-md px-2 py-1 text-xs font-black uppercase ${archivedCard ? "bg-archive-field/10 text-archive-field" : "bg-archive-ink/8 text-archive-ink/54"}`}>
+                      {archivedCard ? "In archive" : "Not added"}
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
