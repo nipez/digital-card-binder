@@ -4,6 +4,7 @@ import type { Card } from "@/types/binder";
 import { FlipCard } from "@/components/FlipCard";
 import { CollectionActions } from "@/components/CollectionActions";
 import { hasMissingScan } from "@/lib/demo-data";
+import { getPlayerSlug } from "@/lib/player-profiles";
 
 export function CardDetailModal({ card }: { card: Card }) {
   return (
@@ -28,7 +29,11 @@ export function CardDetailModal({ card }: { card: Card }) {
         </div>
         <div className="rounded-lg border border-archive-ink/10 bg-white/62 p-6 shadow-card">
           <p className="text-sm font-bold uppercase text-archive-oxblood">Card #{card.number}</p>
-          <h1 className="mt-2 font-display text-5xl font-bold">{card.playerName}</h1>
+          <h1 className="mt-2 font-display text-5xl font-bold">
+            <Link href={`/players/${getPlayerSlug(card.playerName)}`} className="transition hover:text-archive-oxblood">
+              {card.playerName}
+            </Link>
+          </h1>
           <p className="mt-2 text-lg font-semibold text-archive-ink/72">
             {card.team} • {card.position}
           </p>

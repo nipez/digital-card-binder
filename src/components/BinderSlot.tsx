@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { Card } from "@/types/binder";
 import { hasMissingScan } from "@/lib/demo-data";
 import { FlipCard } from "@/components/FlipCard";
+import { getPlayerSlug } from "@/lib/player-profiles";
 
 export function BinderSlot({ card, flipped = false }: { card: Card; flipped?: boolean }) {
   const [slotFlipped, setSlotFlipped] = useState(false);
@@ -24,7 +25,12 @@ export function BinderSlot({ card, flipped = false }: { card: Card; flipped?: bo
             {hasMissingScan(card) ? <ImageOff className="h-3.5 w-3.5" aria-label="Missing scan" /> : null}
             <span className="text-xs font-bold text-archive-ink/58">#{card.number}</span>
           </div>
-          <p className="truncate text-sm font-bold leading-4 text-archive-ink">{card.playerName}</p>
+          <Link
+            href={`/players/${getPlayerSlug(card.playerName)}`}
+            className="block truncate text-sm font-bold leading-4 text-archive-ink transition hover:text-archive-oxblood hover:underline"
+          >
+            {card.playerName}
+          </Link>
           <p className="truncate text-[11px] font-semibold uppercase text-archive-ink/55">{card.team}</p>
         </div>
         <button
