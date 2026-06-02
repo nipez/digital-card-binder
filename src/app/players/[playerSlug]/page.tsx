@@ -62,7 +62,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             </ProfilePanel>
 
             <ProfilePanel icon={<Library className="h-5 w-5" />} title="Cards In This Archive">
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {playerCards.map((card) => (
                   <PlayerCardTile key={card.id} card={card} />
                 ))}
@@ -187,15 +187,20 @@ function PlayerCardTile({ card }: { card: Card }) {
   const back = card.images.find((image) => image.side === "back");
 
   return (
-    <Link href={`/cards/${card.cardSlug}`} className="rounded-lg border border-archive-ink/10 bg-white/58 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
-      <p className="text-xs font-black uppercase text-archive-oxblood">
-        {card.year ? `${card.year} ` : ""}
-        {card.setName ?? "Card"}
-      </p>
-      <h3 className="mt-1 font-display text-2xl font-bold">{card.numberLabel ?? `#${card.number}`}</h3>
-      <p className="mt-1 text-sm font-semibold text-archive-ink/62">
-        {card.team} • {card.position}
-      </p>
+    <Link href={`/cards/${card.cardSlug}`} className="group rounded-lg border border-archive-ink/10 bg-white/58 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
+      <div className="mx-auto w-full max-w-[190px] rounded-md bg-archive-ink/5 p-2 shadow-inner">
+        <FlipCard card={card} interactive={false} />
+      </div>
+      <div className="mt-3">
+        <p className="text-xs font-black uppercase text-archive-oxblood">
+          {card.year ? `${card.year} ` : ""}
+          {card.setName ?? "Card"}
+        </p>
+        <h3 className="mt-1 font-display text-2xl font-bold leading-none transition group-hover:text-archive-oxblood">{card.numberLabel ?? `#${card.number}`}</h3>
+        <p className="mt-2 text-sm font-semibold text-archive-ink/62">
+          {card.team} • {card.position}
+        </p>
+      </div>
       <div className="mt-3 grid grid-cols-2 gap-2 text-xs font-bold uppercase">
         <span className={`rounded-md px-2 py-1 ${front?.status === "missing" ? "bg-archive-oxblood/10 text-archive-oxblood" : "bg-archive-field/10 text-archive-field"}`}>
           Front {front?.status ?? "missing"}
