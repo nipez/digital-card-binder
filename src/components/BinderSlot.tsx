@@ -30,11 +30,12 @@ export function BinderSlot({ card, flipped = false }: { card: Card; flipped?: bo
         <button
           type="button"
           onClick={() => setSlotFlipped((value) => !value)}
-          className="grid h-9 w-9 place-items-center rounded-md border border-archive-ink/10 bg-white text-archive-ink shadow-sm transition hover:bg-archive-ink hover:text-white focus:outline-none focus:ring-2 focus:ring-archive-brass"
+          className="inline-flex h-9 min-w-[74px] items-center justify-center gap-1.5 rounded-md border border-archive-ink/10 bg-white px-2 text-sm font-bold text-archive-ink shadow-sm transition hover:bg-archive-ink hover:text-white focus:outline-none focus:ring-2 focus:ring-archive-brass"
           aria-label={`Flip ${card.playerName}`}
           title={`Flip ${card.playerName}`}
         >
           <RotateCcw className="h-4 w-4" />
+          Flip
         </button>
       </div>
     </div>

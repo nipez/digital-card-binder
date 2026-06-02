@@ -50,7 +50,7 @@ export function SetBinderClient({
       <FilterBar teams={teams} filters={filters} onChange={handleFiltersChange} />
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section className="grid gap-3">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/74 bg-white/64 p-4 shadow-sm backdrop-blur">
+          <div className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/74 bg-archive-paper/92 p-4 shadow-card backdrop-blur md:top-3">
             <div>
               <p className="text-xs font-bold uppercase text-archive-oxblood">9-pocket virtual page</p>
               <h2 className="font-display text-3xl font-bold">{filters.team ? `${teams.find((team) => team.slug === filters.team)?.name} Binder` : "Full Set Binder"}</h2>
@@ -83,7 +83,7 @@ export function SetBinderClient({
               <button
                 type="button"
                 onClick={() => setFlipped((value) => !value)}
-                className="inline-flex h-10 items-center gap-2 rounded-md bg-archive-ink px-3 text-sm font-bold text-white"
+                className="inline-flex h-10 items-center gap-2 rounded-md bg-archive-ink px-3 text-sm font-bold text-white shadow-card transition hover:-translate-y-0.5"
               >
                 <RotateCcw className="h-4 w-4" />
                 Flip page
