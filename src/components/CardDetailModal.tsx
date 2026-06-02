@@ -60,8 +60,8 @@ export function CardDetailModal({ card }: { card: Card }) {
             <div className="grid gap-3 sm:grid-cols-2">
               {card.images.map((image) => (
                 <div key={image.side} className="rounded-md border border-archive-ink/10 bg-archive-paper/60 p-3">
-                  <p className="font-bold capitalize">{image.side}</p>
-                  <p className="text-sm text-archive-ink/62">{image.status === "missing" ? `${image.side} scan needed` : "Approved scan available"}</p>
+                  <p className="font-bold capitalize">{image.side} scan</p>
+                  <p className="text-sm text-archive-ink/62">{image.status === "missing" ? "Scan needed" : "Available"}</p>
                 </div>
               ))}
             </div>

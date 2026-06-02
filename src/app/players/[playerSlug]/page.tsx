@@ -185,6 +185,7 @@ function HeroCard({ cards }: { cards: Card[] }) {
 function PlayerCardTile({ card }: { card: Card }) {
   const front = card.images.find((image) => image.side === "front");
   const back = card.images.find((image) => image.side === "back");
+  const missingCount = [front, back].filter((image) => !image || image.status === "missing").length;
 
   return (
     <Link href={`/cards/${card.cardSlug}`} className="group rounded-lg border border-archive-ink/10 bg-white/58 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
@@ -201,13 +202,9 @@ function PlayerCardTile({ card }: { card: Card }) {
           {card.team} • {card.position}
         </p>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2 text-xs font-bold uppercase">
-        <span className={`rounded-md px-2 py-1 ${front?.status === "missing" ? "bg-archive-oxblood/10 text-archive-oxblood" : "bg-archive-field/10 text-archive-field"}`}>
-          Front {front?.status ?? "missing"}
-        </span>
-        <span className={`rounded-md px-2 py-1 ${back?.status === "missing" ? "bg-archive-oxblood/10 text-archive-oxblood" : "bg-archive-field/10 text-archive-field"}`}>
-          Back {back?.status ?? "missing"}
-        </span>
+      <div className="mt-3 flex items-center justify-between gap-3 text-xs font-black uppercase">
+        <span className={missingCount > 0 ? "text-archive-oxblood" : "text-archive-field"}>{missingCount > 0 ? `${missingCount} scan${missingCount === 1 ? "" : "s"} needed` : "Complete scans"}</span>
+        <span className="text-archive-oxblood/76 transition group-hover:text-archive-oxblood">View card</span>
       </div>
     </Link>
   );
