@@ -218,9 +218,9 @@ function PlayerCardTile({ card }: { card: Card }) {
   const missingCount = [front, back].filter((image) => !image || image.status === "missing").length;
 
   return (
-    <Link href={`/cards/${card.cardSlug}`} className="group rounded-lg border border-archive-ink/10 bg-white/58 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
+    <article className="group rounded-lg border border-archive-ink/10 bg-white/58 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
       <div className="mx-auto w-full max-w-[190px] rounded-md bg-archive-ink/5 p-2 shadow-inner">
-        <FlipCard card={card} interactive={false} />
+        <FlipCard card={card} controls="flip" />
       </div>
       <div className="mt-3">
         <p className="text-xs font-black uppercase text-archive-oxblood">
@@ -234,9 +234,11 @@ function PlayerCardTile({ card }: { card: Card }) {
       </div>
       <div className="mt-3 flex items-center justify-between gap-3 text-xs font-black uppercase">
         <span className={missingCount > 0 ? "text-archive-oxblood" : "text-archive-field"}>{missingCount > 0 ? `${missingCount} scan${missingCount === 1 ? "" : "s"} needed` : "Complete scans"}</span>
-        <span className="text-archive-oxblood/76 transition group-hover:text-archive-oxblood">View card</span>
+        <Link href={`/cards/${card.cardSlug}`} className="text-archive-oxblood/76 transition hover:text-archive-oxblood hover:underline">
+          View card
+        </Link>
       </div>
-    </Link>
+    </article>
   );
 }
 

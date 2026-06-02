@@ -10,13 +10,15 @@ export function FlipCard({
   large = false,
   interactive = true,
   forceFlipped = false,
-  showOverlay = false
+  showOverlay = false,
+  controls = "full"
 }: {
   card: Card;
   large?: boolean;
   interactive?: boolean;
   forceFlipped?: boolean;
   showOverlay?: boolean;
+  controls?: "full" | "flip";
 }) {
   const [flipped, setFlipped] = useState(false);
   const [rotation, setRotation] = useState(0);
@@ -46,6 +48,16 @@ export function FlipCard({
       <button type="button" onClick={() => setFlipped((value) => !value)} className="flip-card group relative block w-full text-left" aria-label={`Flip ${card.playerName} card`}>
         {content}
       </button>
+      {controls === "flip" ? (
+        <button
+          type="button"
+          onClick={() => setFlipped((value) => !value)}
+          className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-md bg-archive-ink px-3 text-sm font-bold text-white shadow-sm transition hover:bg-archive-oxblood"
+        >
+          {flipped ? "Show front" : "Show back"}
+        </button>
+      ) : null}
+      {controls === "full" ? (
       <span className="mt-3 grid grid-cols-3 gap-2 text-sm font-bold">
         <button
           type="button"
@@ -73,6 +85,7 @@ export function FlipCard({
           <RotateCw className="h-4 w-4" />
         </button>
       </span>
+      ) : null}
     </span>
   );
 }
