@@ -35,7 +35,112 @@ const knownProfiles: Record<string, PlayerProfile> = {
       "Start with the 1989 Upper Deck #1 rookie, then branch into flagship Topps, Donruss, Fleer, Score, and later Upper Deck issues.",
       "A future archive view should separate base cards, inserts, parallels, autographs, graded copies, and personal collection status.",
       "The player page can become the collector's map: by year, set, brand, team, scan status, and ownership."
-    ]
+    ],
+    knownCards: {
+      totalLabel: "7,108 TCDB-listed cards",
+      sourceName: "Trading Card Database",
+      sourceUrl: "https://www.tcdb.com/Person.cfm/pid/1494/Ken-Griffey-Jr.",
+      note:
+        "The full Griffey checklist is too large for a hand-built prototype. This section starts with a curated key-card list and gives us the structure for importing the full player checklist later.",
+      keyCards: [
+        {
+          year: "1989",
+          setName: "Upper Deck Baseball",
+          cardNumber: "#1",
+          team: "Seattle Mariners",
+          category: "Rookie card",
+          note: "The signature card of Upper Deck's debut baseball release and the anchor card for this archive."
+        },
+        {
+          year: "1989",
+          setName: "Bowman Baseball",
+          cardNumber: "#220",
+          team: "Seattle Mariners",
+          category: "Rookie card",
+          note: "Oversized Bowman rookie-era card with classic late-1980s checklist appeal."
+        },
+        {
+          year: "1989",
+          setName: "Donruss Baseball",
+          cardNumber: "#33",
+          team: "Seattle Mariners",
+          category: "Rookie card",
+          note: "One of the core mainstream Griffey rookie cards collectors usually group together."
+        },
+        {
+          year: "1989",
+          setName: "Fleer Baseball",
+          cardNumber: "#548",
+          team: "Seattle Mariners",
+          category: "Rookie card",
+          note: "Another essential mass-market rookie from Griffey's first hobby year."
+        },
+        {
+          year: "1989",
+          setName: "Score Traded Baseball",
+          cardNumber: "#100T",
+          team: "Seattle Mariners",
+          category: "Rookie card",
+          note: "A key traded-set rookie that often sits beside Upper Deck in starter Griffey runs."
+        },
+        {
+          year: "1989",
+          setName: "Topps Traded Baseball",
+          cardNumber: "#41T",
+          team: "Seattle Mariners",
+          category: "Rookie card",
+          note: "Topps' traded-set Griffey rookie and a foundational card for brand-by-brand collecting."
+        },
+        {
+          year: "1990",
+          setName: "Topps Baseball",
+          cardNumber: "#336",
+          team: "Seattle Mariners",
+          category: "Second-year",
+          note: "A nostalgic early-career flagship card from the junk-wax peak."
+        },
+        {
+          year: "1990",
+          setName: "Upper Deck Baseball",
+          cardNumber: "#156",
+          team: "Seattle Mariners",
+          category: "Second-year",
+          note: "An early Upper Deck follow-up that pairs naturally with the 1989 rookie."
+        },
+        {
+          year: "1993",
+          setName: "SP Baseball",
+          cardNumber: "#4",
+          team: "Seattle Mariners",
+          category: "Premium era",
+          note: "Part of Upper Deck's premium SP line as the hobby moved into foil, gloss, and chase design."
+        },
+        {
+          year: "1994",
+          setName: "Upper Deck Baseball",
+          cardNumber: "#53",
+          team: "Seattle Mariners",
+          category: "Iconic photo",
+          note: "Known for the fence-climb image, a great example of why image-led browsing matters."
+        },
+        {
+          year: "1997",
+          setName: "Bowman's Best Atomic Refractor",
+          cardNumber: "varies",
+          team: "Seattle Mariners",
+          category: "Parallel",
+          note: "A useful future category example for premium parallels and refractor-style variants."
+        },
+        {
+          year: "1998",
+          setName: "Donruss Crusade",
+          cardNumber: "varies",
+          team: "Seattle Mariners",
+          category: "Insert",
+          note: "A legendary late-1990s insert family and a natural showcase target for player pages."
+        }
+      ]
+    }
   }
 };
 

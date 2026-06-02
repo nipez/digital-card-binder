@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Award, BookOpen, CalendarDays, Library, Lightbulb, Medal, Sparkles } from "lucide-react";
+import { ArrowLeft, Award, BookOpen, CalendarDays, ExternalLink, Library, Lightbulb, Medal, Search, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 import { FlipCard } from "@/components/FlipCard";
 import { getPlayerCards, getPlayerProfile, getPlayerSlug } from "@/lib/player-profiles";
@@ -68,6 +68,8 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                 ))}
               </div>
             </ProfilePanel>
+
+            {profile.knownCards ? <KnownCardsPanel knownCards={profile.knownCards} /> : null}
           </div>
 
           <aside className="grid content-start gap-5">
@@ -106,6 +108,56 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         </section>
       </div>
     </main>
+  );
+}
+
+function KnownCardsPanel({ knownCards }: { knownCards: NonNullable<ReturnType<typeof getPlayerProfile>>["knownCards"] }) {
+  if (!knownCards) {
+    return null;
+  }
+
+  return (
+    <ProfilePanel icon={<Search className="h-5 w-5" />} title="Known Card Universe">
+      <div className="grid gap-4">
+        <div className="rounded-lg border border-archive-field/15 bg-archive-field/8 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase text-archive-field">External checklist scale</p>
+              <p className="mt-1 font-display text-3xl font-bold">{knownCards.totalLabel}</p>
+            </div>
+            <a href={knownCards.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-archive-ink/10 bg-white/70 px-3 py-2 text-sm font-bold text-archive-ink transition hover:text-archive-oxblood">
+              {knownCards.sourceName}
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-archive-ink/68">{knownCards.note}</p>
+        </div>
+
+        <div className="overflow-hidden rounded-lg border border-archive-ink/10 bg-white/48">
+          <div className="grid grid-cols-[70px_minmax(0,1fr)_92px] gap-3 border-b border-archive-ink/10 px-3 py-2 text-xs font-black uppercase text-archive-ink/48 sm:grid-cols-[70px_minmax(0,1fr)_110px_120px]">
+            <span>Year</span>
+            <span>Card</span>
+            <span>Type</span>
+            <span className="hidden sm:block">Team</span>
+          </div>
+          <div className="divide-y divide-archive-ink/10">
+            {knownCards.keyCards.map((card) => (
+              <article key={`${card.year}-${card.setName}-${card.cardNumber}`} className="grid grid-cols-[70px_minmax(0,1fr)_92px] gap-3 px-3 py-3 sm:grid-cols-[70px_minmax(0,1fr)_110px_120px]">
+                <span className="font-display text-xl font-bold text-archive-oxblood">{card.year}</span>
+                <span>
+                  <span className="block font-bold">
+                    {card.setName} <span className="text-archive-ink/48">{card.cardNumber}</span>
+                  </span>
+                  <span className="mt-1 block text-sm leading-6 text-archive-ink/62">{card.note}</span>
+                </span>
+                <span className="text-sm font-bold text-archive-ink/72">{card.category}</span>
+                <span className="hidden text-sm font-semibold text-archive-ink/54 sm:block">{card.team ?? "Multiple"}</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    </ProfilePanel>
   );
 }
 

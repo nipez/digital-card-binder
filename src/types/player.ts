@@ -14,4 +14,18 @@ export type PlayerProfile = {
   trivia: string[];
   timeline: { year: string; label: string; detail: string }[];
   collectingNotes: string[];
+  knownCards?: {
+    totalLabel: string;
+    sourceName: string;
+    sourceUrl: string;
+    note: string;
+    keyCards: {
+      year: string;
+      setName: string;
+      cardNumber: string;
+      team?: string;
+      category: string;
+      note: string;
+    }[];
+  };
 };
