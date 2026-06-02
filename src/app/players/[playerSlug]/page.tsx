@@ -32,15 +32,15 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         </Link>
 
         <section className="overflow-hidden rounded-lg border border-white/74 bg-white/66 shadow-card backdrop-blur">
-          <div className="grid gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:p-8">
-            <div className="grid content-end">
+          <div className="grid items-center gap-6 p-5 md:p-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:p-7">
+            <div>
               <p className="mb-3 inline-flex w-fit items-center gap-2 rounded-md border border-archive-oxblood/18 bg-archive-oxblood/10 px-3 py-1 text-xs font-black uppercase text-archive-oxblood">
                 <Sparkles className="h-4 w-4" />
                 Player archive
               </p>
               <h1 className="font-display text-5xl font-bold leading-tight md:text-7xl">{profile.displayName}</h1>
-              <p className="mt-4 max-w-3xl text-lg leading-8 text-archive-ink/72">{profile.dek}</p>
-              <div className="mt-6 flex flex-wrap gap-2">
+              <p className="mt-3 max-w-3xl text-lg leading-8 text-archive-ink/72">{profile.dek}</p>
+              <div className="mt-5 flex flex-wrap gap-2">
                 {profile.heroStat ? <HeroBadge icon={<Award className="h-4 w-4" />} label={profile.heroStat} /> : null}
                 {profile.careerYears ? <HeroBadge icon={<CalendarDays className="h-4 w-4" />} label={profile.careerYears} /> : null}
                 {profile.positions.length > 0 ? <HeroBadge icon={<Medal className="h-4 w-4" />} label={profile.positions.join(" / ")} /> : null}
@@ -51,8 +51,8 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
           </div>
         </section>
 
-        <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="grid gap-5">
+        <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="grid content-start gap-5">
             <ProfilePanel icon={<BookOpen className="h-5 w-5" />} title="Bio">
               <div className="grid gap-4 text-base leading-8 text-archive-ink/72">
                 {profile.bio.map((paragraph) => (
@@ -121,7 +121,7 @@ function HeroCard({ cards }: { cards: Card[] }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[300px]">
+    <div className="mx-auto w-full max-w-[220px] sm:max-w-[250px] lg:max-w-[260px]">
       <FlipCard card={card} large />
       <Link href={`/cards/${card.cardSlug}`} className="mt-3 block text-center text-sm font-bold text-archive-oxblood hover:underline">
         View card #{card.number}
@@ -135,13 +135,13 @@ function PlayerCardTile({ card }: { card: Card }) {
   const back = card.images.find((image) => image.side === "back");
 
   return (
-    <Link href={`/cards/${card.cardSlug}`} className="rounded-lg border border-archive-ink/10 bg-white/58 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
+    <Link href={`/cards/${card.cardSlug}`} className="rounded-lg border border-archive-ink/10 bg-white/58 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
       <p className="text-xs font-black uppercase text-archive-oxblood">1989 Upper Deck Baseball</p>
-      <h3 className="mt-2 font-display text-2xl font-bold">#{card.number}</h3>
+      <h3 className="mt-1 font-display text-2xl font-bold">#{card.number}</h3>
       <p className="mt-1 text-sm font-semibold text-archive-ink/62">
         {card.team} • {card.position}
       </p>
-      <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-bold uppercase">
+      <div className="mt-3 grid grid-cols-2 gap-2 text-xs font-bold uppercase">
         <span className={`rounded-md px-2 py-1 ${front?.status === "missing" ? "bg-archive-oxblood/10 text-archive-oxblood" : "bg-archive-field/10 text-archive-field"}`}>
           Front {front?.status ?? "missing"}
         </span>
@@ -155,7 +155,7 @@ function PlayerCardTile({ card }: { card: Card }) {
 
 function ProfilePanel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-white/74 bg-white/68 p-5 shadow-sm backdrop-blur">
+    <section className="self-start rounded-lg border border-white/74 bg-white/68 p-5 shadow-sm backdrop-blur">
       <h2 className="mb-4 flex items-center gap-2 font-display text-3xl font-bold">
         <span className="grid h-9 w-9 place-items-center rounded-md bg-archive-oxblood/10 text-archive-oxblood">{icon}</span>
         {title}
