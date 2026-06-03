@@ -16,14 +16,23 @@ type SubmitScanResponse = {
 };
 
 export function SubmitScanForm({ cards }: { cards: Card[] }) {
-  const [cardSlug, setCardSlug] = useState(cards[0]?.cardSlug ?? "");
-  const [side, setSide] = useState<CardImageSide>("front");
+  const firstMissingCard = useMemo(() => cards.find((card) => getMissingSides(card).length > 0) ?? cards[0], [cards]);
+  const [cardSlug, setCardSlug] = useState(firstMissingCard?.cardSlug ?? "");
+  const [side, setSide] = useState<CardImageSide>(firstMissingCard ? getMissingSides(firstMissingCard)[0] ?? "front" : "front");
   const [contributorEmail, setContributorEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const selectedCard = useMemo(() => cards.find((card) => card.cardSlug === cardSlug), [cardSlug, cards]);
+  const selectedMissingSides = selectedCard ? getMissingSides(selectedCard) : [];
+  const selectedStatus = selectedCard ? getScanStatusLabel(selectedCard) : "";
+
+  function chooseCard(nextCardSlug: string) {
+    const nextCard = cards.find((card) => card.cardSlug === nextCardSlug);
+    setCardSlug(nextCardSlug);
+    setSide(nextCard ? getMissingSides(nextCard)[0] ?? "front" : "front");
+  }
 
   async function submitScan(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,7 +82,7 @@ export function SubmitScanForm({ cards }: { cards: Card[] }) {
         Card
         <select
           value={cardSlug}
-          onChange={(event) => setCardSlug(event.target.value)}
+          onChange={(event) => chooseCard(event.target.value)}
           className="h-11 rounded-md border border-archive-ink/14 bg-white px-3 font-normal outline-none focus:border-archive-oxblood"
           required
         >
@@ -81,10 +90,11 @@ export function SubmitScanForm({ cards }: { cards: Card[] }) {
             <option key={card.id} value={card.cardSlug}>
               {card.year ? `${card.year} ` : ""}
               {card.setName ? `${card.setName} ` : ""}
-              {card.numberLabel ?? `#${card.number}`} {card.playerName}
+              {card.numberLabel ?? `#${card.number}`} {card.playerName} - {getScanStatusLabel(card)}
             </option>
           ))}
         </select>
+        {selectedStatus ? <span className="text-xs font-bold uppercase text-archive-ink/52">{selectedStatus}</span> : null}
       </label>
       <label className="grid gap-2 text-sm font-bold">
         Side
@@ -93,8 +103,8 @@ export function SubmitScanForm({ cards }: { cards: Card[] }) {
           onChange={(event) => setSide(event.target.value as CardImageSide)}
           className="h-11 rounded-md border border-archive-ink/14 bg-white px-3 font-normal outline-none focus:border-archive-oxblood"
         >
-          <option value="front">Front</option>
-          <option value="back">Back</option>
+          <option value="front">Front{selectedMissingSides.includes("front") ? " - needed" : " - already exists"}</option>
+          <option value="back">Back{selectedMissingSides.includes("back") ? " - needed" : " - already exists"}</option>
         </select>
       </label>
       <label className="grid gap-2 text-sm font-bold">
@@ -149,4 +159,18 @@ export function SubmitScanForm({ cards }: { cards: Card[] }) {
       ) : null}
     </form>
   );
+}
+
+function getMissingSides(card: Card) {
+  return card.images.filter((image) => image.status === "missing").map((image) => image.side);
+}
+
+function getScanStatusLabel(card: Card) {
+  const missingSides = getMissingSides(card);
+
+  if (missingSides.length === 0) {
+    return "complete";
+  }
+
+  return `needs ${missingSides.join(" + ")}`;
 }
