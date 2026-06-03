@@ -43,7 +43,7 @@ export default async function FleerBasketballSetPage() {
           </span>
         </Link>
       </section>
-      <SetBinderClient cards={cards} teams={buildTeams(cards)} totalCards={set.totalCards} />
+      <SetBinderClient cards={cards} teams={buildTeams(cards)} totalCards={set.totalCards} submitHref="/submit-scan?set=1986-fleer-basketball" />
     </main>
   );
 }

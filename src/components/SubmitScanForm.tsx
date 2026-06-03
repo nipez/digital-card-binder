@@ -79,6 +79,8 @@ export function SubmitScanForm({ cards }: { cards: Card[] }) {
         >
           {cards.map((card) => (
             <option key={card.id} value={card.cardSlug}>
+              {card.year ? `${card.year} ` : ""}
+              {card.setName ? `${card.setName} ` : ""}
               {card.numberLabel ?? `#${card.number}`} {card.playerName}
             </option>
           ))}

@@ -14,11 +14,13 @@ export function SetBinderClient({
   cards,
   teams,
   totalCards,
+  submitHref = "/submit-scan",
   initialFilters = {}
 }: {
   cards: Card[];
   teams: { slug: string; name: string; count: number }[];
   totalCards: number;
+  submitHref?: string;
   initialFilters?: FilterState;
 }) {
   const [filters, setFilters] = useState<FilterState>(initialFilters);
@@ -111,7 +113,7 @@ export function SetBinderClient({
           <section className="rounded-md border border-archive-ink/10 bg-archive-ink p-4 text-white shadow-card">
             <h3 className="font-display text-xl font-bold">Missing Scans</h3>
             <p className="mt-2 text-sm leading-6 text-white/72">{missingCards} cards still need at least one scan side.</p>
-            <Link href="/submit-scan" className="mt-4 inline-flex h-10 items-center gap-2 rounded-md bg-white px-3 text-sm font-bold text-archive-ink">
+            <Link href={submitHref} className="mt-4 inline-flex h-10 items-center gap-2 rounded-md bg-white px-3 text-sm font-bold text-archive-ink">
               <Upload className="h-4 w-4" />
               Submit a scan
             </Link>
