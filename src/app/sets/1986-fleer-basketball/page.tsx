@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import { CompletionStats } from "@/components/CompletionStats";
 import { SetBinderClient } from "@/components/SetBinderClient";
 import { SetHeader } from "@/components/SetHeader";
@@ -7,6 +9,8 @@ export const dynamic = "force-dynamic";
 
 export default async function FleerBasketballSetPage() {
   const { set, cards } = await getFleerBasketballSetData();
+  const iconicCard = cards.find((card) => card.cardSlug === "57-michael-jordan") ?? cards.find((card) => card.number === 57);
+  const iconicFrontImage = iconicCard?.images.find((image) => image.side === "front")?.imageUrl ?? "/placeholders/front-needed.svg";
 
   return (
     <main className="mx-auto grid max-w-7xl gap-5 px-4 py-6 md:px-5 md:py-8">
@@ -15,14 +19,29 @@ export default async function FleerBasketballSetPage() {
           <SetHeader set={set} />
           <CompletionStats cards={cards} totalCards={set.totalCards} />
         </div>
-        <div className="grid content-end gap-3 rounded-lg border border-archive-ink/10 bg-archive-ink p-5 text-white">
-          <p className="text-xs font-bold uppercase text-archive-brass">Iconic card</p>
-          <h2 className="font-display text-4xl font-bold">#57 Michael Jordan</h2>
-          <p className="leading-7 text-white/78">
-            The Jordan rookie anchors this starter checklist alongside Barkley, Ewing, Malone, Olajuwon, Drexler,
-            Wilkins, and other Hall of Fame names.
-          </p>
-        </div>
+        <Link
+          href={iconicCard ? `/cards/${iconicCard.cardSlug}` : "/cards/57-michael-jordan"}
+          className="grid gap-4 rounded-lg border border-archive-ink/10 bg-archive-ink p-5 text-white transition hover:-translate-y-0.5 hover:shadow-card md:grid-cols-[minmax(120px,0.55fr)_1fr]"
+        >
+          <span className="relative mx-auto block aspect-[2.5/3.5] w-full max-w-56 overflow-hidden rounded-md border border-white/12 bg-black/28 shadow-card">
+            <Image
+              src={iconicFrontImage}
+              alt="#57 Michael Jordan front scan"
+              fill
+              priority
+              className="object-contain"
+              sizes="(min-width: 1024px) 220px, 45vw"
+            />
+          </span>
+          <span className="grid content-end gap-3">
+            <span className="text-xs font-bold uppercase text-archive-brass">Iconic card</span>
+            <span className="font-display text-4xl font-bold leading-tight">#57 Michael Jordan</span>
+            <span className="leading-7 text-white/78">
+              The Jordan rookie anchors this starter checklist alongside Barkley, Ewing, Malone, Olajuwon, Drexler,
+              Wilkins, and other Hall of Fame names.
+            </span>
+          </span>
+        </Link>
       </section>
       <SetBinderClient cards={cards} teams={buildTeams(cards)} totalCards={set.totalCards} />
     </main>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { RotateCcw, RotateCw } from "lucide-react";
+import { RotateCw } from "lucide-react";
 import type { Card } from "@/types/binder";
 import { useState } from "react";
 
@@ -54,37 +54,28 @@ export function FlipCard({
           onClick={() => setFlipped((value) => !value)}
           className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-md bg-archive-ink px-3 text-sm font-bold text-white shadow-sm transition hover:bg-archive-oxblood"
         >
-          {flipped ? "Show front" : "Show back"}
+          Flip
         </button>
       ) : null}
       {controls === "full" ? (
-      <span className="mt-3 grid grid-cols-3 gap-2 text-sm font-bold">
-        <button
-          type="button"
-          onClick={() => setRotation((value) => value - 1)}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-archive-ink/10 bg-white/72 text-archive-ink shadow-sm transition hover:text-archive-oxblood"
-          aria-label={`Rotate ${card.playerName} card left`}
-        >
-          <RotateCcw className="h-4 w-4" />
-          Rotate
-        </button>
-        <button
-          type="button"
-          onClick={() => setFlipped((value) => !value)}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-archive-ink px-3 text-white shadow-sm transition hover:bg-archive-oxblood"
-        >
-          {flipped ? "Front" : "Back"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setRotation((value) => value + 1)}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-archive-ink/10 bg-white/72 text-archive-ink shadow-sm transition hover:text-archive-oxblood"
-          aria-label={`Rotate ${card.playerName} card right`}
-        >
-          Rotate
-          <RotateCw className="h-4 w-4" />
-        </button>
-      </span>
+        <span className="mt-3 grid grid-cols-2 gap-2 text-sm font-bold">
+          <button
+            type="button"
+            onClick={() => setFlipped((value) => !value)}
+            className="inline-flex h-10 items-center justify-center rounded-md bg-archive-ink px-3 text-white shadow-sm transition hover:bg-archive-oxblood"
+          >
+            Flip
+          </button>
+          <button
+            type="button"
+            onClick={() => setRotation((value) => value + 1)}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-archive-ink/10 bg-white/72 text-archive-ink shadow-sm transition hover:text-archive-oxblood"
+            aria-label={`Rotate ${card.playerName} card`}
+          >
+            Rotate
+            <RotateCw className="h-4 w-4" />
+          </button>
+        </span>
       ) : null}
     </span>
   );
