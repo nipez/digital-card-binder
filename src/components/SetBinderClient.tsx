@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, RotateCcw, Upload } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { BinderPage } from "@/components/BinderPage";
 import { FilterBar } from "@/components/FilterBar";
 import { hasMissingScan } from "@/lib/demo-data";
@@ -26,6 +26,8 @@ export function SetBinderClient({
   const [filters, setFilters] = useState<FilterState>(initialFilters);
   const [pageIndex, setPageIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [pageTurn, setPageTurn] = useState<"forward" | "backward" | null>(null);
+  const pageTurnTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const visibleCards = useMemo(() => {
     return cards.filter((card) => {
       const matchesQuery = !filters.query || card.playerName.toLowerCase().includes(filters.query.toLowerCase());
@@ -46,6 +48,27 @@ export function SetBinderClient({
     setFilters(nextFilters);
     setPageIndex(0);
     setFlipped(false);
+    setPageTurn(null);
+  }
+
+  function turnPage(direction: "forward" | "backward") {
+    const nextIndex = direction === "forward" ? Math.min(pageCount - 1, pageIndex + 1) : Math.max(0, pageIndex - 1);
+
+    if (nextIndex === pageIndex) {
+      return;
+    }
+
+    if (pageTurnTimeoutRef.current) {
+      clearTimeout(pageTurnTimeoutRef.current);
+    }
+
+    setPageTurn(direction);
+    setFlipped(false);
+
+    pageTurnTimeoutRef.current = setTimeout(() => {
+      setPageIndex(nextIndex);
+      setPageTurn(null);
+    }, 260);
   }
 
   return (
@@ -64,8 +87,8 @@ export function SetBinderClient({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setPageIndex((value) => Math.max(0, value - 1))}
-                disabled={pageIndex === 0}
+                onClick={() => turnPage("backward")}
+                disabled={pageIndex === 0 || pageTurn !== null}
                 className="grid h-10 w-10 place-items-center rounded-md border border-archive-ink/10 bg-white text-archive-ink disabled:opacity-35"
                 aria-label="Previous binder page"
               >
@@ -76,8 +99,8 @@ export function SetBinderClient({
               </span>
               <button
                 type="button"
-                onClick={() => setPageIndex((value) => Math.min(pageCount - 1, value + 1))}
-                disabled={pageIndex >= pageCount - 1}
+                onClick={() => turnPage("forward")}
+                disabled={pageIndex >= pageCount - 1 || pageTurn !== null}
                 className="grid h-10 w-10 place-items-center rounded-md border border-archive-ink/10 bg-white text-archive-ink disabled:opacity-35"
                 aria-label="Next binder page"
               >
@@ -94,7 +117,7 @@ export function SetBinderClient({
             </div>
           </div>
           {visibleCards.length > 0 ? (
-            <BinderPage cards={pageCards} flipped={flipped} />
+            <BinderPage cards={pageCards} flipped={flipped} pageTurn={pageTurn} />
           ) : (
             <p className="rounded-lg border border-archive-ink/10 bg-white/62 p-5 text-center font-bold text-archive-ink/62">
               No cards match those filters.

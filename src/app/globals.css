@@ -47,3 +47,45 @@ a {
 .flip-card-back {
   transform: rotateY(180deg);
 }
+
+.binder-page-turn-forward {
+  animation: binder-page-forward 320ms ease-in-out forwards;
+  transform-origin: left center;
+}
+
+.binder-page-turn-backward {
+  animation: binder-page-backward 320ms ease-in-out forwards;
+  transform-origin: right center;
+}
+
+@keyframes binder-page-forward {
+  0% {
+    opacity: 0;
+    transform: perspective(900px) rotateY(0deg) translateX(18%);
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: perspective(900px) rotateY(-74deg) translateX(-16%);
+  }
+}
+
+@keyframes binder-page-backward {
+  0% {
+    opacity: 0;
+    transform: perspective(900px) rotateY(0deg) translateX(-18%);
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: perspective(900px) rotateY(74deg) translateX(16%);
+  }
+}

@@ -1,7 +1,15 @@
 import type { Card } from "@/types/binder";
 import { BinderSlot } from "@/components/BinderSlot";
 
-export function BinderPage({ cards, flipped = false }: { cards: Card[]; flipped?: boolean }) {
+export function BinderPage({
+  cards,
+  flipped = false,
+  pageTurn = null
+}: {
+  cards: Card[];
+  flipped?: boolean;
+  pageTurn?: "forward" | "backward" | null;
+}) {
   const emptySlots = Array.from({ length: Math.max(0, 9 - cards.length) });
 
   return (
@@ -11,7 +19,7 @@ export function BinderPage({ cards, flipped = false }: { cards: Card[]; flipped?
           <span key={top} className="absolute left-1/2 h-4 w-4 -translate-x-1/2 rounded-full border border-white/45 bg-archive-paper shadow-inner" style={{ top: `${top}%` }} />
         ))}
       </div>
-      <div className="relative rounded-md border border-white/36 bg-[linear-gradient(90deg,rgba(255,255,255,0.20),rgba(255,255,255,0.08)),rgba(235,244,240,0.18)] p-2 shadow-[inset_0_16px_34px_rgba(255,255,255,0.16),inset_0_-18px_36px_rgba(19,23,20,0.18)] md:ml-10 md:p-4">
+      <div className="relative overflow-hidden rounded-md border border-white/36 bg-[linear-gradient(90deg,rgba(255,255,255,0.20),rgba(255,255,255,0.08)),rgba(235,244,240,0.18)] p-2 shadow-[inset_0_16px_34px_rgba(255,255,255,0.16),inset_0_-18px_36px_rgba(19,23,20,0.18)] md:ml-10 md:p-4">
         <div className="grid grid-cols-3 gap-2 rounded-sm bg-white/8 p-1.5 md:gap-4 md:p-3">
           {cards.map((card) => (
             <BinderSlot key={card.id} card={card} flipped={flipped} />
@@ -25,6 +33,13 @@ export function BinderPage({ cards, flipped = false }: { cards: Card[]; flipped?
             </div>
           ))}
         </div>
+        {pageTurn ? (
+          <div
+            className={`pointer-events-none absolute inset-0 z-20 bg-[linear-gradient(90deg,rgba(255,255,255,0.78),rgba(255,255,255,0.36)_48%,rgba(44,31,22,0.28)_100%)] shadow-[0_18px_40px_rgba(22,18,14,0.32)] ${
+              pageTurn === "forward" ? "binder-page-turn-forward" : "binder-page-turn-backward"
+            }`}
+          />
+        ) : null}
       </div>
     </div>
   );
