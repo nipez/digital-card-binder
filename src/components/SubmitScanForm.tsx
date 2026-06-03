@@ -15,8 +15,14 @@ type SubmitScanResponse = {
   };
 };
 
+type CardFilter = "needed" | "complete" | "all";
+
 export function SubmitScanForm({ cards }: { cards: Card[] }) {
-  const firstMissingCard = useMemo(() => cards.find((card) => getMissingSides(card).length > 0) ?? cards[0], [cards]);
+  const cardsNeedingScans = useMemo(() => cards.filter((card) => getMissingSides(card).length > 0), [cards]);
+  const completeCards = useMemo(() => cards.filter((card) => getMissingSides(card).length === 0), [cards]);
+  const [cardFilter, setCardFilter] = useState<CardFilter>(cardsNeedingScans.length ? "needed" : "all");
+  const filteredCards = useMemo(() => getCardsForFilter(cardFilter, cards, cardsNeedingScans, completeCards), [cardFilter, cards, cardsNeedingScans, completeCards]);
+  const firstMissingCard = cardsNeedingScans[0] ?? cards[0];
   const [cardSlug, setCardSlug] = useState(firstMissingCard?.cardSlug ?? "");
   const [side, setSide] = useState<CardImageSide>(firstMissingCard ? getMissingSides(firstMissingCard)[0] ?? "front" : "front");
   const [contributorEmail, setContributorEmail] = useState("");
@@ -32,6 +38,18 @@ export function SubmitScanForm({ cards }: { cards: Card[] }) {
     const nextCard = cards.find((card) => card.cardSlug === nextCardSlug);
     setCardSlug(nextCardSlug);
     setSide(nextCard ? getMissingSides(nextCard)[0] ?? "front" : "front");
+  }
+
+  function chooseFilter(nextFilter: CardFilter) {
+    const nextCards = getCardsForFilter(nextFilter, cards, cardsNeedingScans, completeCards);
+    const nextCard = nextCards.find((card) => card.cardSlug === cardSlug) ?? nextCards[0];
+
+    setCardFilter(nextFilter);
+
+    if (nextCard && nextCard.cardSlug !== cardSlug) {
+      setCardSlug(nextCard.cardSlug);
+      setSide(getMissingSides(nextCard)[0] ?? "front");
+    }
   }
 
   async function submitScan(event: FormEvent<HTMLFormElement>) {
@@ -79,6 +97,18 @@ export function SubmitScanForm({ cards }: { cards: Card[] }) {
   return (
     <form onSubmit={submitScan} className="grid gap-4 rounded-lg border border-archive-ink/10 bg-white/66 p-6 shadow-card">
       <label className="grid gap-2 text-sm font-bold">
+        Show
+        <select
+          value={cardFilter}
+          onChange={(event) => chooseFilter(event.target.value as CardFilter)}
+          className="h-11 rounded-md border border-archive-ink/14 bg-white px-3 font-normal outline-none focus:border-archive-oxblood"
+        >
+          <option value="needed">Scans needed ({cardsNeedingScans.length})</option>
+          <option value="complete">Complete cards ({completeCards.length})</option>
+          <option value="all">All cards ({cards.length})</option>
+        </select>
+      </label>
+      <label className="grid gap-2 text-sm font-bold">
         Card
         <select
           value={cardSlug}
@@ -86,15 +116,19 @@ export function SubmitScanForm({ cards }: { cards: Card[] }) {
           className="h-11 rounded-md border border-archive-ink/14 bg-white px-3 font-normal outline-none focus:border-archive-oxblood"
           required
         >
-          {cards.map((card) => (
+          {filteredCards.map((card) => (
             <option key={card.id} value={card.cardSlug}>
-              {card.year ? `${card.year} ` : ""}
-              {card.setName ? `${card.setName} ` : ""}
-              {card.numberLabel ?? `#${card.number}`} {card.playerName} - {getScanStatusLabel(card)}
+              {card.numberLabel ?? `#${card.number}`} {card.playerName}
             </option>
           ))}
         </select>
-        {selectedStatus ? <span className="text-xs font-bold uppercase text-archive-ink/52">{selectedStatus}</span> : null}
+        {selectedCard ? (
+          <span className="text-xs font-bold uppercase text-archive-ink/52">
+            {selectedCard.year ? `${selectedCard.year} ` : ""}
+            {selectedCard.setName ? `${selectedCard.setName} - ` : ""}
+            {selectedStatus}
+          </span>
+        ) : null}
       </label>
       <label className="grid gap-2 text-sm font-bold">
         Side
@@ -163,6 +197,18 @@ export function SubmitScanForm({ cards }: { cards: Card[] }) {
 
 function getMissingSides(card: Card) {
   return card.images.filter((image) => image.status === "missing").map((image) => image.side);
+}
+
+function getCardsForFilter(filter: CardFilter, cards: Card[], cardsNeedingScans: Card[], completeCards: Card[]) {
+  if (filter === "needed") {
+    return cardsNeedingScans;
+  }
+
+  if (filter === "complete") {
+    return completeCards;
+  }
+
+  return cards;
 }
 
 function getScanStatusLabel(card: Card) {
