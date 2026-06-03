@@ -1,9 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, ChevronLeft, ChevronRight, Copy, ExternalLink, ImageOff, ImagePlus, Loader2, UploadCloud, X } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Copy, ExternalLink, ImageOff, ImagePlus, Loader2, RotateCcw, UploadCloud, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Card } from "@/types/binder";
+
+type ScanCleanup = {
+  zoom: number;
+  rotation: number;
+  offsetX: number;
+  offsetY: number;
+};
+
+const defaultCleanup: ScanCleanup = {
+  zoom: 1,
+  rotation: 0,
+  offsetX: 0,
+  offsetY: 0
+};
 
 export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card[]; initialCardSlug?: string }) {
   const initialMissingCard = cards.find((card) => hasMissingSide(card));
@@ -11,6 +25,8 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
   const [token, setToken] = useState("");
   const [frontFile, setFrontFile] = useState<File | null>(null);
   const [backFile, setBackFile] = useState<File | null>(null);
+  const [frontCleanup, setFrontCleanup] = useState<ScanCleanup>(defaultCleanup);
+  const [backCleanup, setBackCleanup] = useState<ScanCleanup>(defaultCleanup);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState("");
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
@@ -26,6 +42,8 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
     setCardSlug(nextCardSlug);
     setFrontFile(null);
     setBackFile(null);
+    setFrontCleanup(defaultCleanup);
+    setBackCleanup(defaultCleanup);
     setStatus("idle");
     setMessage("");
     setUploadedUrls([]);
@@ -49,16 +67,16 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
     }
 
     setStatus("saving");
-    setMessage("Uploading image files...");
+    setMessage("Cleaning and uploading image files...");
     setUploadedUrls([]);
 
     const formData = new FormData();
     formData.set("cardSlug", cardSlug);
     if (frontFile) {
-      formData.set("frontFile", frontFile);
+      formData.set("frontFile", await buildCleanedScanFile(frontFile, frontCleanup, `${cardSlug}-front.webp`));
     }
     if (backFile) {
-      formData.set("backFile", backFile);
+      formData.set("backFile", await buildCleanedScanFile(backFile, backCleanup, `${cardSlug}-back.webp`));
     }
 
     const response = await fetch("/api/admin/card-images", {
@@ -89,6 +107,8 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
     });
     setFrontFile(null);
     setBackFile(null);
+    setFrontCleanup(defaultCleanup);
+    setBackCleanup(defaultCleanup);
   }
 
   return (
@@ -141,14 +161,24 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
               statusLabel={selectedMissingSides.includes("front") ? "Needed" : "Already approved"}
               file={frontFile}
               previewUrl={frontPreviewUrl}
-              onChange={setFrontFile}
+              cleanup={frontCleanup}
+              onChange={(file) => {
+                setFrontFile(file);
+                setFrontCleanup(defaultCleanup);
+              }}
+              onCleanupChange={setFrontCleanup}
             />
             <ScanFilePicker
               label="Back scan"
               statusLabel={selectedMissingSides.includes("back") ? "Needed" : "Already approved"}
               file={backFile}
               previewUrl={backPreviewUrl}
-              onChange={setBackFile}
+              cleanup={backCleanup}
+              onChange={(file) => {
+                setBackFile(file);
+                setBackCleanup(defaultCleanup);
+              }}
+              onCleanupChange={setBackCleanup}
             />
           </div>
 
@@ -299,14 +329,22 @@ function ScanFilePicker({
   statusLabel,
   file,
   previewUrl,
-  onChange
+  cleanup,
+  onChange,
+  onCleanupChange
 }: {
   label: string;
   statusLabel: string;
   file: File | null;
   previewUrl: string;
+  cleanup: ScanCleanup;
   onChange: (file: File | null) => void;
+  onCleanupChange: (cleanup: ScanCleanup) => void;
 }) {
+  function updateCleanup(partial: Partial<ScanCleanup>) {
+    onCleanupChange({ ...cleanup, ...partial });
+  }
+
   return (
     <div className="grid gap-2">
       <div className="flex items-center justify-between gap-3">
@@ -315,7 +353,14 @@ function ScanFilePicker({
           <p className="text-xs font-semibold uppercase text-archive-ink/45">{statusLabel}</p>
         </div>
         {file ? (
-          <button type="button" onClick={() => onChange(null)} className="inline-flex items-center gap-1 text-xs font-bold text-archive-oxblood">
+          <button
+            type="button"
+            onClick={() => {
+              onChange(null);
+              onCleanupChange(defaultCleanup);
+            }}
+            className="inline-flex items-center gap-1 text-xs font-bold text-archive-oxblood"
+          >
             <X className="h-3.5 w-3.5" />
             Clear
           </button>
@@ -323,18 +368,100 @@ function ScanFilePicker({
       </div>
       <label className="grid min-h-72 cursor-pointer place-items-center overflow-hidden rounded-lg border border-dashed border-archive-oxblood/40 bg-archive-paper/70 p-4 text-center text-sm font-bold text-archive-oxblood">
         {previewUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={previewUrl} alt={`${label} preview`} className="max-h-[420px] max-w-full rounded-md object-contain shadow-card" />
+          <span className="relative grid aspect-[2.5/3.5] w-full max-w-[300px] place-items-center overflow-hidden rounded-md bg-black shadow-card">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewUrl}
+              alt={`${label} preview`}
+              className="h-full w-full object-contain"
+              style={{
+                transform: `translate(${cleanup.offsetX}%, ${cleanup.offsetY}%) rotate(${cleanup.rotation}deg) scale(${cleanup.zoom})`
+              }}
+            />
+            <span className="pointer-events-none absolute inset-3 rounded border border-dashed border-white/70" />
+          </span>
         ) : (
           <span>
             <UploadCloud className="mx-auto mb-2 h-8 w-8" />
             Choose {label.toLowerCase()}
+            <span className="mt-1 block text-xs text-archive-ink/50">Cleaned to 750x1050 WebP before upload</span>
           </span>
         )}
         <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => onChange(event.target.files?.[0] ?? null)} />
       </label>
+      {file ? (
+        <div className="grid gap-2 rounded-md border border-archive-ink/10 bg-white/64 p-3 text-xs font-bold text-archive-ink/70">
+          <label className="grid gap-1">
+            Rotate
+            <input type="range" min="-12" max="12" step="0.25" value={cleanup.rotation} onChange={(event) => updateCleanup({ rotation: Number(event.target.value) })} />
+          </label>
+          <label className="grid gap-1">
+            Zoom
+            <input type="range" min="0.8" max="1.8" step="0.02" value={cleanup.zoom} onChange={(event) => updateCleanup({ zoom: Number(event.target.value) })} />
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="grid gap-1">
+              X
+              <input type="range" min="-35" max="35" step="1" value={cleanup.offsetX} onChange={(event) => updateCleanup({ offsetX: Number(event.target.value) })} />
+            </label>
+            <label className="grid gap-1">
+              Y
+              <input type="range" min="-35" max="35" step="1" value={cleanup.offsetY} onChange={(event) => updateCleanup({ offsetY: Number(event.target.value) })} />
+            </label>
+          </div>
+          <button type="button" onClick={() => onCleanupChange(defaultCleanup)} className="inline-flex w-fit items-center gap-1 rounded-md border border-archive-ink/10 bg-white px-2 py-1 font-bold">
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset cleanup
+          </button>
+        </div>
+      ) : null}
     </div>
   );
+}
+
+async function buildCleanedScanFile(file: File, cleanup: ScanCleanup, fileName: string) {
+  const image = await loadImage(URL.createObjectURL(file));
+  const canvas = document.createElement("canvas");
+  canvas.width = 750;
+  canvas.height = 1050;
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    return file;
+  }
+
+  context.fillStyle = "#111111";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.rotate((cleanup.rotation * Math.PI) / 180);
+
+  const imageRatio = image.naturalWidth / image.naturalHeight;
+  const cardRatio = canvas.width / canvas.height;
+  const baseWidth = imageRatio > cardRatio ? canvas.height * imageRatio : canvas.width;
+  const baseHeight = imageRatio > cardRatio ? canvas.height : canvas.width / imageRatio;
+  const drawWidth = baseWidth * cleanup.zoom;
+  const drawHeight = baseHeight * cleanup.zoom;
+  const offsetX = (cleanup.offsetX / 100) * canvas.width;
+  const offsetY = (cleanup.offsetY / 100) * canvas.height;
+
+  context.drawImage(image, -drawWidth / 2 + offsetX, -drawHeight / 2 + offsetY, drawWidth, drawHeight);
+
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.9));
+
+  if (!blob) {
+    return file;
+  }
+
+  return new File([blob], fileName, { type: "image/webp" });
+}
+
+function loadImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
 }
 
 function getMissingSides(card: Card, completedSides?: Set<"front" | "back">) {
