@@ -1,4 +1,5 @@
 import { demoCards, getCardBySlug, getTeamCards, getTeams, upperDeck1989Set } from "@/lib/demo-data";
+import { fleer1986BasketballCards, fleer1986BasketballSet } from "@/lib/fleer-basketball-data";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { slugify } from "@/lib/utils";
 import type { Card, CardImage, SetSummary } from "@/types/binder";
@@ -33,39 +34,31 @@ type SetRow = {
 };
 
 export async function getUpperDeckSetData(): Promise<{ set: SetSummary; cards: Card[]; source: "supabase" | "demo" }> {
-  const supabase = createServerSupabaseClient();
+  return getSupabaseSetData(upperDeck1989Set.slug, upperDeck1989Set, demoCards);
+}
 
-  if (!supabase) {
-    return { set: upperDeck1989Set, cards: demoCards, source: "demo" };
+export async function getFleerBasketballSetData(): Promise<{ set: SetSummary; cards: Card[]; source: "supabase" | "demo" }> {
+  const result = await getSupabaseSetData(fleer1986BasketballSet.slug, fleer1986BasketballSet, fleer1986BasketballCards);
+
+  if (result.source === "demo") {
+    return result;
   }
 
-  const { data: setRow, error: setError } = await supabase
-    .from("sets")
-    .select("id, slug, name, year, manufacturer, total_cards, description")
-    .eq("slug", "1989-upper-deck-baseball")
-    .single<SetRow>();
-
-  if (setError || !setRow) {
-    return { set: upperDeck1989Set, cards: demoCards, source: "demo" };
-  }
-
-  const { data: cardRows, error: cardsError } = await supabase
-    .from("cards")
-    .select(
-      "id, set_id, card_number, slug, player_name, team, team_slug, position, is_rookie, is_hall_of_famer, notes, card_images(side, image_url, status)"
-    )
-    .eq("set_id", setRow.id)
-    .order("card_number", { ascending: true })
-    .returns<CardRow[]>();
-
-  if (cardsError || !cardRows) {
-    return { set: upperDeck1989Set, cards: demoCards, source: "demo" };
-  }
+  const cardsBySlug = new Map(result.cards.map((card) => [card.cardSlug, card]));
 
   return {
-    set: mapSet(setRow),
-    cards: cardRows.map(mapCard),
-    source: "supabase"
+    ...result,
+    cards: fleer1986BasketballCards.map((demoCard) => {
+      const uploadedCard = cardsBySlug.get(demoCard.cardSlug);
+
+      return uploadedCard
+        ? {
+            ...demoCard,
+            id: uploadedCard.id,
+            images: uploadedCard.images
+          }
+        : demoCard;
+    })
   };
 }
 
@@ -171,6 +164,47 @@ export function buildTeams(cards: Card[]) {
     name,
     count: cards.filter((card) => card.teamSlug === slug).length
   }));
+}
+
+async function getSupabaseSetData(
+  setSlug: string,
+  fallbackSet: SetSummary,
+  fallbackCards: Card[]
+): Promise<{ set: SetSummary; cards: Card[]; source: "supabase" | "demo" }> {
+  const supabase = createServerSupabaseClient();
+
+  if (!supabase) {
+    return { set: fallbackSet, cards: fallbackCards, source: "demo" };
+  }
+
+  const { data: setRow, error: setError } = await supabase
+    .from("sets")
+    .select("id, slug, name, year, manufacturer, total_cards, description")
+    .eq("slug", setSlug)
+    .single<SetRow>();
+
+  if (setError || !setRow) {
+    return { set: fallbackSet, cards: fallbackCards, source: "demo" };
+  }
+
+  const { data: cardRows, error: cardsError } = await supabase
+    .from("cards")
+    .select(
+      "id, set_id, card_number, slug, player_name, team, team_slug, position, is_rookie, is_hall_of_famer, notes, card_images(side, image_url, status)"
+    )
+    .eq("set_id", setRow.id)
+    .order("card_number", { ascending: true })
+    .returns<CardRow[]>();
+
+  if (cardsError || !cardRows) {
+    return { set: fallbackSet, cards: fallbackCards, source: "demo" };
+  }
+
+  return {
+    set: mapSet(setRow),
+    cards: cardRows.map(mapCard),
+    source: "supabase"
+  };
 }
 
 function mapSet(row: SetRow): SetSummary {
