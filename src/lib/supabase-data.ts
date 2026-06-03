@@ -39,7 +39,7 @@ export async function getUpperDeckSetData(): Promise<{ set: SetSummary; cards: C
 
 export async function getFleerBasketballSetData(): Promise<{ set: SetSummary; cards: Card[]; source: "supabase" | "demo" }> {
   const result = await getSupabaseSetData(
-    [fleer1986BasketballSet.slug, "1986-87-fleer-basketball"],
+    [fleer1986BasketballSet.slug, "1986-1986-87-fleer-basketball", "1986-87-fleer-basketball"],
     fleer1986BasketballSet,
     fleer1986BasketballCards
   );
