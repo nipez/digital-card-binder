@@ -33,6 +33,12 @@ type SetRow = {
   description: string | null;
 };
 
+const fleer1986BasketballSlugs = new Set([
+  fleer1986BasketballSet.slug,
+  "1986-1986-87-fleer-basketball",
+  "1986-87-fleer-basketball"
+]);
+
 export async function getUpperDeckSetData(): Promise<{ set: SetSummary; cards: Card[]; source: "supabase" | "demo" }> {
   return getSupabaseSetData(upperDeck1989Set.slug, upperDeck1989Set, demoCards);
 }
@@ -260,12 +266,14 @@ function withSetMetadata(card: Card, setRow?: SetRow): Card {
     };
   }
 
+  const isFleer1986Basketball = fleer1986BasketballSlugs.has(setRow.slug);
+
   return {
     ...card,
     setName: setRow.name,
     year: String(setRow.year),
     numberLabel: `#${card.number}`,
-    returnHref: `/players/${slugify(card.playerName)}`,
-    returnLabel: `Back to ${card.playerName}`
+    returnHref: isFleer1986Basketball ? `/sets/${fleer1986BasketballSet.slug}` : `/sets/${setRow.slug}`,
+    returnLabel: isFleer1986Basketball ? "Back to 1986 Fleer" : `Back to ${setRow.name}`
   };
 }
