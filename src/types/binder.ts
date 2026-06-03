@@ -46,7 +46,7 @@ export type FilterState = {
   missingOnly?: boolean;
 };
 
-export type CollectionAction = "had" | "have" | "want" | "favorite";
+export type CollectionAction = "have" | "want" | "favorite";
 
 export type ScanSubmission = {
   id: string;

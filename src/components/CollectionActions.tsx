@@ -1,13 +1,12 @@
 "use client";
 
-import { Check, Heart, History, Star } from "lucide-react";
+import { Check, Heart, Star } from "lucide-react";
 import { useState } from "react";
 import type { CollectionAction } from "@/types/binder";
 
 const actions: { id: CollectionAction; label: string; icon: React.ReactNode }[] = [
-  { id: "had", label: "I had this", icon: <History className="h-4 w-4" /> },
-  { id: "have", label: "I have this", icon: <Check className="h-4 w-4" /> },
-  { id: "want", label: "I want this", icon: <Heart className="h-4 w-4" /> },
+  { id: "have", label: "Add to my collection", icon: <Check className="h-4 w-4" /> },
+  { id: "want", label: "Want", icon: <Heart className="h-4 w-4" /> },
   { id: "favorite", label: "Favorite", icon: <Star className="h-4 w-4" /> }
 ];
 
