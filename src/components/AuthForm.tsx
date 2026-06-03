@@ -1,11 +1,11 @@
 "use client";
 
-import { Loader2, LogIn, UserPlus } from "lucide-react";
+import { KeyRound, Loader2, LogIn, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { createClient } from "@/lib/supabase";
 
-type Mode = "login" | "signup";
+type Mode = "forgot" | "login" | "signup";
 
 export function AuthForm() {
   const router = useRouter();
@@ -27,32 +27,61 @@ export function AuthForm() {
     }
 
     setStatus("loading");
-    setMessage(mode === "login" ? "Signing in..." : "Creating account...");
+    setMessage(mode === "login" ? "Signing in..." : mode === "signup" ? "Creating account..." : "Sending reset email...");
 
-    const result =
-      mode === "login"
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: `${window.location.origin}/auth/callback?next=/account`
-            }
-          });
+    if (mode === "forgot") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`
+      });
 
-    if (result.error) {
+      if (error) {
+        setStatus("error");
+        setMessage(error.message);
+        return;
+      }
+
+      setStatus("success");
+      setMessage("Password reset email sent. Check your inbox for the reset link.");
+      return;
+    }
+
+    if (mode === "signup") {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/account`
+        }
+      });
+
+      if (error) {
+        setStatus("error");
+        setMessage(error.message);
+        return;
+      }
+
+      setStatus("success");
+
+      if (!data.session) {
+        setMessage("Account created. Check your email to confirm your address before signing in.");
+        return;
+      }
+
+      setMessage("Signed in.");
+      router.push("/account");
+      router.refresh();
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
       setStatus("error");
-      setMessage(result.error.message);
+      setMessage(error.message);
       return;
     }
 
     setStatus("success");
-
-    if (mode === "signup" && !result.data.session) {
-      setMessage("Account created. Check your email to confirm your address before signing in.");
-      return;
-    }
-
     setMessage("Signed in.");
     router.push("/account");
     router.refresh();
@@ -76,6 +105,11 @@ export function AuthForm() {
           Sign up
         </button>
       </div>
+      {mode === "forgot" ? (
+        <p className="rounded-md border border-archive-ink/10 bg-archive-paper/70 p-3 text-sm font-semibold text-archive-ink/70">
+          Enter your account email and we will send a password reset link.
+        </p>
+      ) : null}
       <label className="grid gap-2 text-sm font-bold">
         Email
         <input
@@ -87,25 +121,34 @@ export function AuthForm() {
           required
         />
       </label>
-      <label className="grid gap-2 text-sm font-bold">
-        Password
-        <input
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          type="password"
-          autoComplete={mode === "login" ? "current-password" : "new-password"}
-          minLength={6}
-          className="h-11 rounded-md border border-archive-ink/14 bg-white px-3 font-normal outline-none focus:border-archive-oxblood"
-          required
-        />
-      </label>
+      {mode !== "forgot" ? (
+        <label className="grid gap-2 text-sm font-bold">
+          Password
+          <input
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            type="password"
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+            minLength={6}
+            className="h-11 rounded-md border border-archive-ink/14 bg-white px-3 font-normal outline-none focus:border-archive-oxblood"
+            required
+          />
+        </label>
+      ) : null}
       <button
         type="submit"
         disabled={status === "loading"}
         className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-archive-oxblood px-4 font-bold text-white disabled:opacity-55"
       >
-        {status === "loading" ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === "login" ? <LogIn className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
-        {mode === "login" ? "Log in" : "Create account"}
+        {status === "loading" ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === "login" ? <LogIn className="h-4 w-4" /> : mode === "signup" ? <UserPlus className="h-4 w-4" /> : <KeyRound className="h-4 w-4" />}
+        {mode === "login" ? "Log in" : mode === "signup" ? "Create account" : "Send reset link"}
+      </button>
+      <button
+        type="button"
+        onClick={() => setMode(mode === "forgot" ? "login" : "forgot")}
+        className="justify-self-start text-sm font-bold text-archive-oxblood hover:text-archive-ink"
+      >
+        {mode === "forgot" ? "Back to log in" : "Forgot password?"}
       </button>
       {message ? (
         <p className={`rounded-md border p-3 text-sm font-bold ${status === "error" ? "border-archive-oxblood/30 bg-archive-oxblood/10 text-archive-oxblood" : "border-archive-field/25 bg-archive-field/10 text-archive-field"}`}>
