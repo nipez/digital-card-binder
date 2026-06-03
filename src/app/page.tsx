@@ -1,11 +1,22 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { CompletionStats } from "@/components/CompletionStats";
 import { SetHeader } from "@/components/SetHeader";
 import { fleer1986BasketballSet, fleer1986BasketballCards } from "@/lib/fleer-basketball-data";
 import { getUpperDeckSetData } from "@/lib/supabase-data";
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams
+}: {
+  searchParams: Promise<{ code?: string }>;
+}) {
+  const { code } = await searchParams;
+
+  if (code) {
+    redirect(`/auth/callback?code=${encodeURIComponent(code)}&next=/account`);
+  }
+
   const { set, cards } = await getUpperDeckSetData();
 
   return (

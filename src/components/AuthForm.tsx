@@ -36,7 +36,7 @@ export function AuthForm() {
             email,
             password,
             options: {
-              emailRedirectTo: `${window.location.origin}/account`
+              emailRedirectTo: `${window.location.origin}/auth/callback?next=/account`
             }
           });
 
