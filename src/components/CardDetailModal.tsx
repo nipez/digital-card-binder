@@ -11,6 +11,8 @@ export function CardDetailModal({ card }: { card: Card }) {
   const backHref = card.returnHref ?? "/sets/1989-upper-deck-baseball";
   const backLabel = card.returnLabel ?? "Back to binder";
   const playerHref = card.setId === "1986-fleer-basketball" ? `/cards/${card.cardSlug}` : `/players/${getPlayerSlug(card.playerName)}`;
+  const missingScan = hasMissingScan(card);
+  const submitScanHref = card.setId === "1986-fleer-basketball" ? "/submit-scan?set=1986-fleer-basketball" : "/submit-scan";
 
   return (
     <main className="mx-auto max-w-6xl px-5 py-6">
@@ -49,7 +51,7 @@ export function CardDetailModal({ card }: { card: Card }) {
             {card.isRookie ? <Badge icon={<Sparkle className="h-4 w-4" />} label="Rookie card" /> : null}
             {card.isHallOfFamer ? <Badge icon={<Medal className="h-4 w-4" />} label="Hall of Famer" /> : null}
             {card.category && !card.isRookie ? <Badge icon={<Sparkle className="h-4 w-4" />} label={card.category} /> : null}
-            {hasMissingScan(card) ? <Badge icon={<ImageOff className="h-4 w-4" />} label="Scan needed" /> : null}
+            {missingScan ? <Badge icon={<ImageOff className="h-4 w-4" />} label="Scan needed" /> : null}
           </div>
           <p className="mt-6 leading-7 text-archive-ink/72">{card.notes}</p>
           <div className="mt-7 border-t border-archive-ink/10 pt-5">
@@ -57,7 +59,15 @@ export function CardDetailModal({ card }: { card: Card }) {
             <CollectionActions cardSlug={card.cardSlug} />
           </div>
           <div className="mt-7 border-t border-archive-ink/10 pt-5">
-            <h2 className="mb-3 font-display text-2xl font-bold">Scans</h2>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="font-display text-2xl font-bold">Scans</h2>
+              {missingScan ? (
+                <Link href={submitScanHref} className="inline-flex h-9 items-center gap-2 rounded-md bg-archive-oxblood px-3 text-sm font-bold text-white shadow-sm">
+                  <ImagePlus className="h-4 w-4" />
+                  Submit scan
+                </Link>
+              ) : null}
+            </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {card.images.map((image) => (
                 <div key={image.side} className="rounded-md border border-archive-ink/10 bg-archive-paper/60 p-3">

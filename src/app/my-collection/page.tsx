@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Heart, Star, CheckCircle2 } from "lucide-react";
+import { MyCollectionClient, type MyCollectionCard } from "@/components/MyCollectionClient";
 import { createAdminSupabaseClient } from "@/lib/supabase-admin";
 import { getCurrentUser } from "@/lib/supabase-auth-server";
 import type { CollectionAction } from "@/types/binder";
@@ -80,12 +80,21 @@ export default async function MyCollectionPage() {
     statesByCardId.set(row.card_id, [...(statesByCardId.get(row.card_id) ?? []), row.state]);
   }
 
-  const cards = (cardRows ?? []).map((card) => ({
-    ...card,
-    set: setsById.get(card.set_id),
-    states: statesByCardId.get(card.id) ?? [],
-    frontImage: card.card_images.find((image) => image.side === "front" && image.status === "approved")?.image_url
-  }));
+  const cards: MyCollectionCard[] = (cardRows ?? []).map((card) => {
+    const set = setsById.get(card.set_id);
+
+    return {
+      cardNumber: card.card_number,
+      frontImage: card.card_images.find((image) => image.side === "front" && image.status === "approved")?.image_url,
+      id: card.id,
+      playerName: card.player_name,
+      setName: set?.name,
+      setYear: set?.year,
+      slug: card.slug,
+      states: statesByCardId.get(card.id) ?? [],
+      team: card.team
+    };
+  });
   const ownedCards = cards.filter((card) => card.states.includes("have"));
   const wantedCards = cards.filter((card) => card.states.includes("want"));
   const favoriteCards = cards.filter((card) => card.states.includes("favorite"));
@@ -110,31 +119,7 @@ export default async function MyCollectionPage() {
       </section>
 
       {cards.length ? (
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((card) => (
-            <Link key={card.id} href={`/cards/${card.slug}`} className="rounded-lg border border-white/74 bg-white/64 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
-              <span className="grid aspect-[2.5/3.5] place-items-center overflow-hidden rounded-md bg-archive-ink/8">
-                {card.frontImage ? (
-                  <Image src={card.frontImage} alt={`${card.player_name} front scan`} width={260} height={364} className="h-full w-full object-cover" />
-                ) : (
-                  <span className="px-4 text-center font-display text-2xl font-bold text-archive-ink/42">Scan needed</span>
-                )}
-              </span>
-              <span className="mt-3 block text-xs font-bold uppercase text-archive-oxblood">
-                {card.set?.year} {card.set?.name} #{card.card_number}
-              </span>
-              <span className="mt-1 block text-xl font-bold">{card.player_name}</span>
-              <span className="text-sm font-semibold text-archive-ink/58">{card.team}</span>
-              <span className="mt-3 flex flex-wrap gap-2">
-                {card.states.map((state) => (
-                  <span key={state} className="rounded-md bg-archive-field/10 px-2 py-1 text-xs font-black uppercase text-archive-field">
-                    {state === "have" ? "In collection" : state}
-                  </span>
-                ))}
-              </span>
-            </Link>
-          ))}
-        </section>
+        <MyCollectionClient cards={cards} />
       ) : (
         <section className="rounded-lg border border-white/74 bg-white/64 p-6 shadow-sm">
           <h2 className="font-display text-3xl font-bold">No cards saved yet</h2>

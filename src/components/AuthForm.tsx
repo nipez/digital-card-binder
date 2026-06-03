@@ -2,7 +2,7 @@
 
 import { KeyRound, Loader2, LogIn, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase";
 
 type Mode = "forgot" | "login" | "signup";
@@ -12,8 +12,19 @@ export function AuthForm() {
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [resetCooldown, setResetCooldown] = useState(0);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!resetCooldown) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setResetCooldown((current) => Math.max(current - 1, 0)), 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [resetCooldown]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,12 +47,14 @@ export function AuthForm() {
 
       if (error) {
         setStatus("error");
-        setMessage(error.message);
+        setMessage(getFriendlyAuthError(error.message));
+        setResetCooldown(60);
         return;
       }
 
       setStatus("success");
       setMessage("Password reset email sent. Check your inbox for the reset link.");
+      setResetCooldown(60);
       return;
     }
 
@@ -56,7 +69,7 @@ export function AuthForm() {
 
       if (error) {
         setStatus("error");
-        setMessage(error.message);
+        setMessage(getFriendlyAuthError(error.message));
         return;
       }
 
@@ -77,7 +90,7 @@ export function AuthForm() {
 
     if (error) {
       setStatus("error");
-      setMessage(error.message);
+      setMessage(getFriendlyAuthError(error.message));
       return;
     }
 
@@ -137,11 +150,11 @@ export function AuthForm() {
       ) : null}
       <button
         type="submit"
-        disabled={status === "loading"}
+        disabled={status === "loading" || (mode === "forgot" && resetCooldown > 0)}
         className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-archive-oxblood px-4 font-bold text-white disabled:opacity-55"
       >
         {status === "loading" ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === "login" ? <LogIn className="h-4 w-4" /> : mode === "signup" ? <UserPlus className="h-4 w-4" /> : <KeyRound className="h-4 w-4" />}
-        {mode === "login" ? "Log in" : mode === "signup" ? "Create account" : "Send reset link"}
+        {mode === "login" ? "Log in" : mode === "signup" ? "Create account" : resetCooldown > 0 ? `Try again in ${resetCooldown}s` : "Send reset link"}
       </button>
       <button
         type="button"
@@ -157,4 +170,22 @@ export function AuthForm() {
       ) : null}
     </form>
   );
+}
+
+function getFriendlyAuthError(message: string) {
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("rate limit")) {
+    return "Too many auth emails were requested. Wait a minute, then try again.";
+  }
+
+  if (normalized.includes("invalid login credentials")) {
+    return "That email and password do not match. Try again or reset your password.";
+  }
+
+  if (normalized.includes("email not confirmed")) {
+    return "Confirm your email address before logging in.";
+  }
+
+  return message;
 }

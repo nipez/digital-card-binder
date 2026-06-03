@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { CompletionStats } from "@/components/CompletionStats";
 import { SetHeader } from "@/components/SetHeader";
-import { fleer1986BasketballSet, fleer1986BasketballCards } from "@/lib/fleer-basketball-data";
+import { fleer1986BasketballSet } from "@/lib/fleer-basketball-data";
 import { getUpperDeckSetData } from "@/lib/supabase-data";
 
 export default async function HomePage({
@@ -18,6 +18,26 @@ export default async function HomePage({
   }
 
   const { set, cards } = await getUpperDeckSetData();
+  const archiveSections = [
+    {
+      count: `${set.totalCards} cards`,
+      description: set.description,
+      href: `/sets/${set.slug}`,
+      title: set.name
+    },
+    {
+      count: `${fleer1986BasketballSet.totalCards} cards`,
+      description: fleer1986BasketballSet.description,
+      href: `/sets/${fleer1986BasketballSet.slug}`,
+      title: fleer1986BasketballSet.name
+    },
+    {
+      count: "Comics prototype",
+      description: "A longbox-style archive for key issues, shelves, covers, and collection grouping.",
+      href: "/comics",
+      title: "Comic Archive"
+    }
+  ];
 
   return (
     <main>
@@ -33,24 +53,20 @@ export default async function HomePage({
               Browse the 1989 Upper Deck Baseball checklist like a careful nine-pocket binder: sleeve by sleeve,
               scan by scan, with collection actions ready for the cards you remember.
             </p>
-            <Link
-              href="/sets/1989-upper-deck-baseball"
-              className="mt-8 inline-flex items-center gap-2 rounded-md bg-archive-brass px-5 py-3 font-bold text-archive-ink shadow-card transition hover:translate-y-[-1px]"
-            >
-              Open the binder <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/comics"
-              className="ml-3 mt-8 inline-flex items-center gap-2 rounded-md border border-white/24 px-5 py-3 font-bold text-white transition hover:translate-y-[-1px]"
-            >
-              Try comics v2 <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/sets/1986-fleer-basketball"
-              className="ml-3 mt-8 inline-flex items-center gap-2 rounded-md border border-white/24 px-5 py-3 font-bold text-white transition hover:translate-y-[-1px]"
-            >
-              1986 Fleer <ArrowRight className="h-4 w-4" />
-            </Link>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="#archive-directory"
+                className="inline-flex items-center gap-2 rounded-md bg-archive-brass px-5 py-3 font-bold text-archive-ink shadow-card transition hover:translate-y-[-1px]"
+              >
+                Browse archive <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/my-collection"
+                className="inline-flex items-center gap-2 rounded-md border border-white/24 px-5 py-3 font-bold text-white transition hover:translate-y-[-1px]"
+              >
+                My collection <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
           <div className="self-end rounded-lg border border-white/18 bg-white/12 p-4 shadow-card backdrop-blur">
             <SetHeader set={set} compact />
@@ -58,15 +74,17 @@ export default async function HomePage({
           </div>
         </div>
       </section>
-      <section className="mx-auto grid max-w-7xl gap-5 px-5 py-10 md:grid-cols-3">
-        <Link href="/sets/1986-fleer-basketball" className="rounded-lg border border-archive-ink/10 bg-white/55 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
-          <BookOpen className="mb-4 h-6 w-6 text-archive-oxblood" />
-          <h2 className="font-display text-2xl font-bold">{fleer1986BasketballSet.name}</h2>
-          <p className="mt-2 text-sm leading-6 text-archive-ink/72">
-            A starter binder for the 132-card checklist, centered on Michael Jordan #57 and a deep rookie class.
-          </p>
-          <p className="mt-3 text-xs font-bold uppercase text-archive-oxblood">{fleer1986BasketballCards.length} key cards loaded</p>
-        </Link>
+      <section id="archive-directory" className="mx-auto grid max-w-7xl gap-5 px-5 py-10 md:grid-cols-3">
+        {archiveSections.map((section) => (
+          <Link key={section.href} href={section.href} className="rounded-lg border border-archive-ink/10 bg-white/55 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
+            <BookOpen className="mb-4 h-6 w-6 text-archive-oxblood" />
+            <h2 className="font-display text-2xl font-bold">{section.title}</h2>
+            <p className="mt-2 text-sm leading-6 text-archive-ink/72">{section.description}</p>
+            <p className="mt-3 text-xs font-bold uppercase text-archive-oxblood">{section.count}</p>
+          </Link>
+        ))}
+      </section>
+      <section className="mx-auto grid max-w-7xl gap-5 px-5 pb-10 md:grid-cols-3">
         {["Nine-pocket browsing", "Scan-first collecting", "Moderation ready"].map((title, index) => (
           <article key={title} className="rounded-lg border border-archive-ink/10 bg-white/55 p-5 shadow-sm">
             <BookOpen className="mb-4 h-6 w-6 text-archive-oxblood" />
