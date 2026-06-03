@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import { fleer1986BasketballSet, getFleer1986BasketballCardBySlug } from "@/lib/fleer-basketball-data";
-import { getKnownPlayerCardBySlug } from "@/lib/player-profiles";
+import { findOrCreateKnownCard } from "@/lib/known-card-records";
 import { createAdminSupabaseClient, getAdminSupabaseConfigStatus } from "@/lib/supabase-admin";
-import { slugify } from "@/lib/utils";
-import type { Card } from "@/types/binder";
 
 export const runtime = "nodejs";
 
@@ -60,27 +57,13 @@ export async function POST(request: Request) {
     }
   }
 
-  const prototypeCard = getKnownPlayerCardBySlug(cardSlug) ?? getFleer1986BasketballCardBySlug(cardSlug);
-  let { data: card, error: cardError } = await supabase
-    .from("cards")
-    .select("id, slug")
-    .eq("slug", cardSlug)
-    .single<{ id: string; slug: string }>();
+  const cardResult = await findOrCreateKnownCard(supabase, cardSlug);
 
-  if (cardError || !card) {
-    if (!prototypeCard?.setName || !prototypeCard.year) {
-      return NextResponse.json({ error: "Card not found in Supabase." }, { status: 404 });
-    }
-
-    const createdCard = await createKnownCard(supabase, prototypeCard);
-
-    if ("error" in createdCard) {
-      return NextResponse.json({ error: createdCard.error }, { status: 500 });
-    }
-
-    card = createdCard.card;
-    cardError = null;
+  if ("error" in cardResult) {
+    return NextResponse.json({ error: cardResult.error }, { status: 404 });
   }
+
+  const { card } = cardResult;
 
   const removeUploadedFiles = async (paths: string[]) => {
     if (paths.length) {
@@ -176,78 +159,4 @@ function getExtension(file: File) {
   }
 
   return "webp";
-}
-
-async function createKnownCard(supabase: NonNullable<ReturnType<typeof createAdminSupabaseClient>>, card: Card) {
-  const isFleerBasketball = card.setId === fleer1986BasketballSet.id;
-  const setSlug = isFleerBasketball ? fleer1986BasketballSet.slug : slugify(`${card.year}-${card.setName}`);
-  const { data: setRow, error: setError } = await supabase
-    .from("sets")
-    .upsert(
-      {
-        slug: setSlug,
-        name: card.setName,
-        year: Number(card.year),
-        manufacturer: isFleerBasketball ? fleer1986BasketballSet.manufacturer : getManufacturerName(card.setName ?? ""),
-        total_cards: isFleerBasketball ? fleer1986BasketballSet.totalCards : 1,
-        description: isFleerBasketball ? fleer1986BasketballSet.description : `Prototype archive set record for ${card.playerName} scan submissions.`
-      },
-      { onConflict: "slug" }
-    )
-    .select("id")
-    .single<{ id: string }>();
-
-  if (setError || !setRow) {
-    return { error: setError?.message ?? "Could not create card set." };
-  }
-
-  const { data: createdCard, error: createCardError } = await supabase
-    .from("cards")
-    .upsert(
-      {
-        set_id: setRow.id,
-        card_number: card.number,
-        slug: card.cardSlug,
-        player_name: card.playerName,
-        team: card.team,
-        team_slug: card.teamSlug,
-        position: card.position,
-        is_rookie: card.isRookie,
-        is_hall_of_famer: card.isHallOfFamer,
-        notes: card.notes
-      },
-      { onConflict: "slug" }
-    )
-    .select("id, slug")
-    .single<{ id: string; slug: string }>();
-
-  if (createCardError || !createdCard) {
-    return { error: createCardError?.message ?? "Could not create card." };
-  }
-
-  const { error: missingImagesError } = await supabase.from("card_images").upsert(
-    [
-      { card_id: createdCard.id, side: "front", image_url: null, status: "missing" },
-      { card_id: createdCard.id, side: "back", image_url: null, status: "missing" }
-    ],
-    { onConflict: "card_id,side" }
-  );
-
-  if (missingImagesError) {
-    return { error: missingImagesError.message };
-  }
-
-  return { card: createdCard };
-}
-
-function getManufacturerName(setName: string) {
-  if (setName.includes("Upper Deck")) {
-    return "Upper Deck";
-  }
-
-  if (setName.includes("Bowman")) {
-    return "Bowman";
-  }
-
-  return setName.split(" ")[0] ?? setName;
 }

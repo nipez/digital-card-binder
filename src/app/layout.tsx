@@ -29,6 +29,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/submit-scan" className="whitespace-nowrap rounded-md border border-archive-ink/10 bg-white/44 px-3 py-2 hover:text-archive-oxblood sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
                 Submit Scan
               </Link>
+              <Link href="/my-collection" className="whitespace-nowrap rounded-md border border-archive-ink/10 bg-white/44 px-3 py-2 hover:text-archive-oxblood sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+                My Collection
+              </Link>
+              <Link href="/account" className="whitespace-nowrap rounded-md border border-archive-ink/10 bg-white/44 px-3 py-2 hover:text-archive-oxblood sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+                Account
+              </Link>
               <Link href="/admin/moderation" className="whitespace-nowrap rounded-md border border-archive-ink/10 bg-white/44 px-3 py-2 hover:text-archive-oxblood sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
                 Admin
               </Link>

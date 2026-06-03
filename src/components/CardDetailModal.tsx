@@ -54,7 +54,7 @@ export function CardDetailModal({ card }: { card: Card }) {
           <p className="mt-6 leading-7 text-archive-ink/72">{card.notes}</p>
           <div className="mt-7 border-t border-archive-ink/10 pt-5">
             <h2 className="mb-3 font-display text-2xl font-bold">Collection</h2>
-            <CollectionActions />
+            <CollectionActions cardSlug={card.cardSlug} />
           </div>
           <div className="mt-7 border-t border-archive-ink/10 pt-5">
             <h2 className="mb-3 font-display text-2xl font-bold">Scans</h2>
