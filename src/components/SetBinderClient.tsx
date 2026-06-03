@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, RotateCcw, Upload } from "lucide-react";
-import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { BinderPage } from "@/components/BinderPage";
 import { FilterBar } from "@/components/FilterBar";
@@ -50,11 +49,11 @@ export function SetBinderClient({
   return (
     <div className="grid gap-5">
       <FilterBar teams={teams} filters={filters} onChange={handleFiltersChange} />
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
         <section className="grid gap-3">
-          <div className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/74 bg-archive-paper/92 p-4 shadow-card backdrop-blur md:top-3">
+          <div className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 rounded-md border border-archive-ink/12 bg-archive-paper/95 p-4 shadow-card backdrop-blur md:top-3">
             <div>
-              <p className="text-xs font-bold uppercase text-archive-oxblood">9-pocket virtual page</p>
+              <p className="text-xs font-bold uppercase text-archive-oxblood">9-pocket sleeve</p>
               <h2 className="font-display text-3xl font-bold">{filters.team ? `${teams.find((team) => team.slug === filters.team)?.name} Binder` : "Full Set Binder"}</h2>
               <p className="text-sm font-semibold text-archive-ink/58">
                 Showing {visibleCards.length === 0 ? 0 : pageIndex * pageSize + 1}-{Math.min((pageIndex + 1) * pageSize, visibleCards.length)} of {visibleCards.length}
@@ -101,35 +100,25 @@ export function SetBinderClient({
           )}
         </section>
         <aside className="grid content-start gap-4">
-          <InfoPanel title="Why This Feels Different">
-            <p>This is the feeling of opening a binder, not scanning a spreadsheet. Each page stays grounded in nine pockets.</p>
-            <p>Missing scans become a clear invitation for collectors to help complete the archive.</p>
-          </InfoPanel>
-          <InfoPanel title="Community Completion">
-            <Progress label="Checklist imported" value={cards.length} total={totalCards} />
-            <Progress label="Front scans" value={frontComplete} total={cards.length} />
-            <Progress label="Back scans" value={backComplete} total={cards.length} />
-          </InfoPanel>
-          <div className="rounded-lg border border-archive-ink/10 bg-archive-ink p-5 text-white shadow-card">
-            <h3 className="font-display text-2xl font-bold">Rebuild the Binder</h3>
+          <section className="rounded-md border border-archive-ink/10 bg-white/64 p-4 shadow-sm backdrop-blur">
+            <h3 className="font-display text-xl font-bold">Archive Health</h3>
+            <div className="mt-3 grid gap-3">
+              <Progress label="Checklist imported" value={cards.length} total={totalCards} />
+              <Progress label="Front scans" value={frontComplete} total={cards.length} />
+              <Progress label="Back scans" value={backComplete} total={cards.length} />
+            </div>
+          </section>
+          <section className="rounded-md border border-archive-ink/10 bg-archive-ink p-4 text-white shadow-card">
+            <h3 className="font-display text-xl font-bold">Missing Scans</h3>
             <p className="mt-2 text-sm leading-6 text-white/72">{missingCards} cards still need at least one scan side.</p>
             <Link href="/submit-scan" className="mt-4 inline-flex h-10 items-center gap-2 rounded-md bg-white px-3 text-sm font-bold text-archive-ink">
               <Upload className="h-4 w-4" />
               Submit a scan
             </Link>
-          </div>
+          </section>
         </aside>
       </div>
     </div>
-  );
-}
-
-function InfoPanel({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="rounded-lg border border-white/74 bg-white/68 p-5 shadow-sm backdrop-blur">
-      <h3 className="font-display text-2xl font-bold">{title}</h3>
-      <div className="mt-3 grid gap-3 text-sm leading-6 text-archive-ink/68">{children}</div>
-    </section>
   );
 }
 
@@ -142,8 +131,8 @@ function Progress({ label, value, total }: { label: string; value: number; total
         <span>{label}</span>
         <span>{percent}%</span>
       </div>
-      <div className="h-3 overflow-hidden rounded-md bg-archive-ink/10">
-        <div className="h-full rounded-md bg-archive-field" style={{ width: `${percent}%` }} />
+      <div className="h-2.5 overflow-hidden rounded-sm bg-archive-ink/10">
+        <div className="h-full rounded-sm bg-archive-field" style={{ width: `${percent}%` }} />
       </div>
     </div>
   );

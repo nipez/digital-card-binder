@@ -14,7 +14,8 @@ export function BinderSlot({ card, flipped = false }: { card: Card; flipped?: bo
   const playerHref = card.setId === "1986-fleer-basketball" ? `/cards/${card.cardSlug}` : `/players/${getPlayerSlug(card.playerName)}`;
 
   return (
-    <div className="group relative rounded-lg border border-white/70 bg-white/46 p-2 shadow-sleeve backdrop-blur-sm transition hover:-translate-y-1">
+    <div className="group relative rounded-md border border-white/42 bg-white/18 p-2 shadow-[inset_0_1px_12px_rgba(255,255,255,0.22),0_12px_28px_rgba(22,18,14,0.28)] backdrop-blur-sm transition hover:-translate-y-1">
+      <span className="pointer-events-none absolute inset-1 rounded-sm border border-white/24 shadow-[inset_0_0_20px_rgba(255,255,255,0.12)]" />
       <Link href={`/cards/${card.cardSlug}`} className="block">
         <FlipCard card={card} interactive={false} forceFlipped={isFlipped} />
       </Link>

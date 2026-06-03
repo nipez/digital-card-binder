@@ -21,21 +21,21 @@ export default async function FleerBasketballSetPage() {
         </div>
         <Link
           href={iconicCard ? `/cards/${iconicCard.cardSlug}` : "/cards/57-michael-jordan"}
-          className="grid gap-4 rounded-lg border border-archive-ink/10 bg-archive-ink p-5 text-white transition hover:-translate-y-0.5 hover:shadow-card md:grid-cols-[minmax(120px,0.55fr)_1fr]"
+          className="grid min-h-[320px] items-center gap-6 rounded-lg border border-archive-ink/10 bg-archive-ink p-6 text-white transition hover:-translate-y-0.5 hover:shadow-card md:grid-cols-[minmax(180px,0.72fr)_minmax(0,1fr)] lg:min-h-[360px] lg:p-8"
         >
-          <span className="relative mx-auto block aspect-[2.5/3.5] w-full max-w-56 overflow-hidden rounded-md border border-white/12 bg-black/28 shadow-card">
+          <span className="relative block aspect-[2.5/3.5] w-full max-w-64 justify-self-center overflow-hidden rounded-md border border-white/18 bg-black/28 shadow-card">
             <Image
               src={iconicFrontImage}
               alt="#57 Michael Jordan front scan"
               fill
               priority
               className="object-contain"
-              sizes="(min-width: 1024px) 220px, 45vw"
+              sizes="(min-width: 1024px) 256px, (min-width: 768px) 34vw, 62vw"
             />
           </span>
-          <span className="grid content-end gap-3">
+          <span className="grid max-w-md content-center gap-3 justify-self-center md:justify-self-start">
             <span className="text-xs font-bold uppercase text-archive-brass">Iconic card</span>
-            <span className="font-display text-4xl font-bold leading-tight">#57 Michael Jordan</span>
+            <span className="font-display text-4xl font-bold leading-tight lg:text-5xl">#57 Michael Jordan</span>
             <span className="leading-7 text-white/78">
               The Jordan rookie anchors this starter checklist alongside Barkley, Ewing, Malone, Olajuwon, Drexler,
               Wilkins, and other Hall of Fame names.
