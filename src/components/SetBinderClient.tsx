@@ -14,10 +14,12 @@ const pageSize = 9;
 export function SetBinderClient({
   cards,
   teams,
+  totalCards,
   initialFilters = {}
 }: {
   cards: Card[];
   teams: { slug: string; name: string; count: number }[];
+  totalCards: number;
   initialFilters?: FilterState;
 }) {
   const [filters, setFilters] = useState<FilterState>(initialFilters);
@@ -104,13 +106,13 @@ export function SetBinderClient({
             <p>Missing scans become a clear invitation for collectors to help complete the archive.</p>
           </InfoPanel>
           <InfoPanel title="Community Completion">
-            <Progress label="Checklist imported" value={cards.length} total={800} />
+            <Progress label="Checklist imported" value={cards.length} total={totalCards} />
             <Progress label="Front scans" value={frontComplete} total={cards.length} />
             <Progress label="Back scans" value={backComplete} total={cards.length} />
           </InfoPanel>
           <div className="rounded-lg border border-archive-ink/10 bg-archive-ink p-5 text-white shadow-card">
             <h3 className="font-display text-2xl font-bold">Rebuild the Binder</h3>
-            <p className="mt-2 text-sm leading-6 text-white/72">{missingCards} demo cards still need at least one scan side.</p>
+            <p className="mt-2 text-sm leading-6 text-white/72">{missingCards} cards still need at least one scan side.</p>
             <Link href="/submit-scan" className="mt-4 inline-flex h-10 items-center gap-2 rounded-md bg-white px-3 text-sm font-bold text-archive-ink">
               <Upload className="h-4 w-4" />
               Submit a scan

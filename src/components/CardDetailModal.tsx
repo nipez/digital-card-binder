@@ -10,6 +10,7 @@ export function CardDetailModal({ card }: { card: Card }) {
   const displayNumber = card.numberLabel ?? `#${card.number}`;
   const backHref = card.returnHref ?? "/sets/1989-upper-deck-baseball";
   const backLabel = card.returnLabel ?? "Back to binder";
+  const playerHref = card.setId === "1986-fleer-basketball" ? `/cards/${card.cardSlug}` : `/players/${getPlayerSlug(card.playerName)}`;
 
   return (
     <main className="mx-auto max-w-6xl px-5 py-6">
@@ -37,7 +38,7 @@ export function CardDetailModal({ card }: { card: Card }) {
             {card.setName ?? "Card"} {displayNumber}
           </p>
           <h1 className="mt-2 font-display text-5xl font-bold">
-            <Link href={`/players/${getPlayerSlug(card.playerName)}`} className="transition hover:text-archive-oxblood">
+            <Link href={playerHref} className="transition hover:text-archive-oxblood">
               {card.playerName}
             </Link>
           </h1>

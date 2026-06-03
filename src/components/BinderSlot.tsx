@@ -11,6 +11,7 @@ import { getPlayerSlug } from "@/lib/player-profiles";
 export function BinderSlot({ card, flipped = false }: { card: Card; flipped?: boolean }) {
   const [slotFlipped, setSlotFlipped] = useState(false);
   const isFlipped = flipped || slotFlipped;
+  const playerHref = card.setId === "1986-fleer-basketball" ? `/cards/${card.cardSlug}` : `/players/${getPlayerSlug(card.playerName)}`;
 
   return (
     <div className="group relative rounded-lg border border-white/70 bg-white/46 p-2 shadow-sleeve backdrop-blur-sm transition hover:-translate-y-1">
@@ -26,7 +27,7 @@ export function BinderSlot({ card, flipped = false }: { card: Card; flipped?: bo
             <span className="text-xs font-bold text-archive-ink/58">#{card.number}</span>
           </div>
           <Link
-            href={`/players/${getPlayerSlug(card.playerName)}`}
+            href={playerHref}
             className="block truncate text-sm font-bold leading-4 text-archive-ink transition hover:text-archive-oxblood hover:underline"
           >
             {card.playerName}

@@ -27,7 +27,7 @@ export default async function TeamBinderPage({ params }: { params: Promise<{ tea
         <h1 className="font-display text-5xl font-bold">{team.name}</h1>
         <p className="mt-2 text-archive-ink/68">{teamCards.length} cards in this team binder.</p>
       </section>
-      <SetBinderClient cards={cards} teams={teams} initialFilters={{ team: teamSlug }} />
+      <SetBinderClient cards={cards} teams={teams} totalCards={set.totalCards} initialFilters={{ team: teamSlug }} />
     </main>
   );
 }

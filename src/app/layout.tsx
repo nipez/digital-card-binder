@@ -18,7 +18,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 text-xs font-bold sm:mx-0 sm:items-center sm:overflow-visible sm:p-0 sm:text-sm">
               <Link href="/sets/1989-upper-deck-baseball" className="whitespace-nowrap rounded-md border border-archive-ink/10 bg-white/44 px-3 py-2 hover:text-archive-oxblood sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
-                Set
+                1989 UD
+              </Link>
+              <Link href="/sets/1986-fleer-basketball" className="whitespace-nowrap rounded-md border border-archive-ink/10 bg-white/44 px-3 py-2 hover:text-archive-oxblood sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+                1986 Fleer
               </Link>
               <Link href="/comics" className="whitespace-nowrap rounded-md border border-archive-ink/10 bg-white/44 px-3 py-2 hover:text-archive-oxblood sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
                 Comics

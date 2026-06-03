@@ -26,7 +26,7 @@ export default async function SetPage() {
           Reading cards from Supabase.
         </p>
       ) : null}
-      <SetBinderClient cards={cards} teams={buildTeams(cards)} />
+      <SetBinderClient cards={cards} teams={buildTeams(cards)} totalCards={set.totalCards} />
     </main>
   );
 }

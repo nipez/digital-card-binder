@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { CompletionStats } from "@/components/CompletionStats";
 import { SetHeader } from "@/components/SetHeader";
+import { fleer1986BasketballSet, fleer1986BasketballCards } from "@/lib/fleer-basketball-data";
 import { getUpperDeckSetData } from "@/lib/supabase-data";
 
 export default async function HomePage() {
@@ -33,6 +34,12 @@ export default async function HomePage() {
             >
               Try comics v2 <ArrowRight className="h-4 w-4" />
             </Link>
+            <Link
+              href="/sets/1986-fleer-basketball"
+              className="ml-3 mt-8 inline-flex items-center gap-2 rounded-md border border-white/24 px-5 py-3 font-bold text-white transition hover:translate-y-[-1px]"
+            >
+              1986 Fleer <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
           <div className="self-end rounded-lg border border-white/18 bg-white/12 p-4 shadow-card backdrop-blur">
             <SetHeader set={set} compact />
@@ -41,6 +48,14 @@ export default async function HomePage() {
         </div>
       </section>
       <section className="mx-auto grid max-w-7xl gap-5 px-5 py-10 md:grid-cols-3">
+        <Link href="/sets/1986-fleer-basketball" className="rounded-lg border border-archive-ink/10 bg-white/55 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
+          <BookOpen className="mb-4 h-6 w-6 text-archive-oxblood" />
+          <h2 className="font-display text-2xl font-bold">{fleer1986BasketballSet.name}</h2>
+          <p className="mt-2 text-sm leading-6 text-archive-ink/72">
+            A starter binder for the 132-card checklist, centered on Michael Jordan #57 and a deep rookie class.
+          </p>
+          <p className="mt-3 text-xs font-bold uppercase text-archive-oxblood">{fleer1986BasketballCards.length} key cards loaded</p>
+        </Link>
         {["Nine-pocket browsing", "Scan-first collecting", "Moderation ready"].map((title, index) => (
           <article key={title} className="rounded-lg border border-archive-ink/10 bg-white/55 p-5 shadow-sm">
             <BookOpen className="mb-4 h-6 w-6 text-archive-oxblood" />

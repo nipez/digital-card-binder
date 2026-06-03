@@ -6,15 +6,15 @@ export function CompletionStats({ cards, totalCards }: { cards: Card[]; totalCar
   const demoComplete = cards.filter((card) => !hasMissingScan(card)).length;
   const missing = cards.filter(hasMissingScan).length;
   const hof = cards.filter((card) => card.isHallOfFamer).length;
-  const percent = Math.round((demoComplete / cards.length) * 100);
+  const percent = cards.length === 0 ? 0 : Math.round((demoComplete / cards.length) * 100);
 
   return (
     <div className="grid gap-3 sm:grid-cols-3">
-      <Stat icon={<CheckCircle2 className="h-5 w-5" />} label="Demo scans complete" value={`${percent}%`} />
+      <Stat icon={<CheckCircle2 className="h-5 w-5" />} label="Scans complete" value={`${percent}%`} />
       <Stat icon={<ImageOff className="h-5 w-5" />} label="Cards needing scans" value={String(missing)} />
-      <Stat icon={<Star className="h-5 w-5" />} label={`Hall of Famers in ${cards.length} demo`} value={String(hof)} />
+      <Stat icon={<Star className="h-5 w-5" />} label={`Hall of Famers shown`} value={String(hof)} />
       <p className="sm:col-span-3 text-xs font-semibold uppercase text-current/58">
-        {cards.length} demo cards loaded from an {totalCards}-card checklist target.
+        {cards.length} cards loaded from a {totalCards}-card checklist target.
       </p>
     </div>
   );
