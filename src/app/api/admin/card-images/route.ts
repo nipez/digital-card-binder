@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { fleer1986BasketballSet, getFleer1986BasketballCardBySlug } from "@/lib/fleer-basketball-data";
 import { getKnownPlayerCardBySlug } from "@/lib/player-profiles";
 import { createAdminSupabaseClient, getAdminSupabaseConfigStatus } from "@/lib/supabase-admin";
 import { slugify } from "@/lib/utils";
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Upload JPG, PNG, or WebP images only." }, { status: 400 });
   }
 
+  const prototypeCard = getKnownPlayerCardBySlug(cardSlug) ?? getFleer1986BasketballCardBySlug(cardSlug);
   let { data: card, error: cardError } = await supabase
     .from("cards")
     .select("id, slug")
@@ -73,14 +75,13 @@ export async function POST(request: Request) {
     .single<{ id: string; slug: string }>();
 
   if (cardError || !card) {
-    const prototypeCard = getKnownPlayerCardBySlug(cardSlug);
-
     if (!prototypeCard?.setName || !prototypeCard.year) {
       return NextResponse.json({ error: "Card not found." }, { status: 404 });
     }
 
     const setSlug = slugify(`${prototypeCard.year}-${prototypeCard.setName}`);
     const manufacturer = getManufacturerName(prototypeCard.setName);
+    const isFleerBasketball = prototypeCard.setId === fleer1986BasketballSet.id;
     const { data: setRow, error: setError } = await supabase
       .from("sets")
       .upsert(
@@ -89,8 +90,10 @@ export async function POST(request: Request) {
           name: prototypeCard.setName,
           year: Number(prototypeCard.year),
           manufacturer,
-          total_cards: 1,
-          description: `Prototype archive set record for ${prototypeCard.playerName} card uploads.`
+          total_cards: isFleerBasketball ? fleer1986BasketballSet.totalCards : 1,
+          description: isFleerBasketball
+            ? fleer1986BasketballSet.description
+            : `Prototype archive set record for ${prototypeCard.playerName} card uploads.`
         },
         { onConflict: "slug" }
       )
@@ -149,7 +152,7 @@ export async function POST(request: Request) {
     }
 
     const extension = upload.file.type === "image/png" ? "png" : upload.file.type === "image/jpeg" ? "jpg" : "webp";
-    const storagePath = `${getStorageFolder(cardSlug)}/${card.slug}-${upload.side}-${Date.now()}.${extension}`;
+    const storagePath = `${getStorageFolder(cardSlug, prototypeCard?.setId)}/${card.slug}-${upload.side}-${Date.now()}.${extension}`;
     const { error: uploadError } = await supabase.storage.from("card-scans").upload(storagePath, upload.file, {
       cacheControl: "31536000",
       contentType: upload.file.type,
@@ -183,13 +186,21 @@ export async function POST(request: Request) {
   }
 
   revalidatePath("/sets/1989-upper-deck-baseball");
+  revalidatePath(`/sets/${fleer1986BasketballSet.slug}`);
   revalidatePath(`/cards/${card.slug}`);
-  revalidatePath("/players/ken-griffey-jr");
+
+  if (prototypeCard?.setId !== fleer1986BasketballSet.id) {
+    revalidatePath("/players/ken-griffey-jr");
+  }
 
   return NextResponse.json({ cardSlug: card.slug, images: savedImages });
 }
 
-function getStorageFolder(cardSlug: string) {
+function getStorageFolder(cardSlug: string, setId?: string) {
+  if (setId === fleer1986BasketballSet.id) {
+    return fleer1986BasketballSet.slug;
+  }
+
   return cardSlug.match(/^[0-9]{1,3}-/) ? "1989-upper-deck-baseball" : "player-universe";
 }
 
