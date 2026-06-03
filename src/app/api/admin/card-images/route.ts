@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Card not found." }, { status: 404 });
     }
 
-    const setSlug = slugify(`${prototypeCard.year}-${prototypeCard.setName}`);
+    const setSlug = prototypeCard.setId === fleer1986BasketballSet.id ? fleer1986BasketballSet.slug : slugify(`${prototypeCard.year}-${prototypeCard.setName}`);
     const manufacturer = getManufacturerName(prototypeCard.setName);
     const isFleerBasketball = prototypeCard.setId === fleer1986BasketballSet.id;
     const { data: setRow, error: setError } = await supabase

@@ -38,7 +38,11 @@ export async function getUpperDeckSetData(): Promise<{ set: SetSummary; cards: C
 }
 
 export async function getFleerBasketballSetData(): Promise<{ set: SetSummary; cards: Card[]; source: "supabase" | "demo" }> {
-  const result = await getSupabaseSetData(fleer1986BasketballSet.slug, fleer1986BasketballSet, fleer1986BasketballCards);
+  const result = await getSupabaseSetData(
+    [fleer1986BasketballSet.slug, "1986-87-fleer-basketball"],
+    fleer1986BasketballSet,
+    fleer1986BasketballCards
+  );
 
   if (result.source === "demo") {
     return result;
@@ -167,7 +171,7 @@ export function buildTeams(cards: Card[]) {
 }
 
 async function getSupabaseSetData(
-  setSlug: string,
+  setSlug: string | string[],
   fallbackSet: SetSummary,
   fallbackCards: Card[]
 ): Promise<{ set: SetSummary; cards: Card[]; source: "supabase" | "demo" }> {
@@ -177,22 +181,26 @@ async function getSupabaseSetData(
     return { set: fallbackSet, cards: fallbackCards, source: "demo" };
   }
 
-  const { data: setRow, error: setError } = await supabase
+  const setSlugs = Array.isArray(setSlug) ? setSlug : [setSlug];
+  const { data: setRows, error: setError } = await supabase
     .from("sets")
     .select("id, slug, name, year, manufacturer, total_cards, description")
-    .eq("slug", setSlug)
-    .single<SetRow>();
+    .in("slug", setSlugs)
+    .returns<SetRow[]>();
 
-  if (setError || !setRow) {
+  if (setError || !setRows?.length) {
     return { set: fallbackSet, cards: fallbackCards, source: "demo" };
   }
 
+  const setRowsBySlug = new Map(setRows.map((row) => [row.slug, row]));
+  const setRow = setSlugs.map((slug) => setRowsBySlug.get(slug)).find(Boolean) ?? setRows[0];
+  const setIds = setRows.map((row) => row.id);
   const { data: cardRows, error: cardsError } = await supabase
     .from("cards")
     .select(
       "id, set_id, card_number, slug, player_name, team, team_slug, position, is_rookie, is_hall_of_famer, notes, card_images(side, image_url, status)"
     )
-    .eq("set_id", setRow.id)
+    .in("set_id", setIds)
     .order("card_number", { ascending: true })
     .returns<CardRow[]>();
 
