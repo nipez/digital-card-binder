@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, ChevronLeft, ChevronRight, Copy, ExternalLink, ImageOff, ImagePlus, Loader2, RotateCcw, UploadCloud, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Camera, CheckCircle2, ChevronLeft, ChevronRight, Copy, ExternalLink, ImageOff, ImagePlus, Loader2, RotateCcw, ScanLine, UploadCloud, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Card } from "@/types/binder";
+import type { CardImageSide } from "@/types/binder";
 
 type ScanCleanup = {
   zoom: number;
@@ -23,6 +24,7 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
   const initialMissingCard = cards.find((card) => hasMissingSide(card));
   const [cardSlug, setCardSlug] = useState(initialCardSlug ?? initialMissingCard?.cardSlug ?? cards[0]?.cardSlug ?? "");
   const [token, setToken] = useState("");
+  const [uploadMode, setUploadMode] = useState<"camera" | "manual">("camera");
   const [frontFile, setFrontFile] = useState<File | null>(null);
   const [backFile, setBackFile] = useState<File | null>(null);
   const [frontCleanup, setFrontCleanup] = useState<ScanCleanup>(defaultCleanup);
@@ -156,31 +158,81 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
           </label>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <ScanFilePicker
-              label="Front scan"
-              statusLabel={selectedMissingSides.includes("front") ? "Needed" : "Already approved"}
-              file={frontFile}
-              previewUrl={frontPreviewUrl}
-              cleanup={frontCleanup}
-              onChange={(file) => {
-                setFrontFile(file);
-                setFrontCleanup(defaultCleanup);
-              }}
-              onCleanupChange={setFrontCleanup}
-            />
-            <ScanFilePicker
-              label="Back scan"
-              statusLabel={selectedMissingSides.includes("back") ? "Needed" : "Already approved"}
-              file={backFile}
-              previewUrl={backPreviewUrl}
-              cleanup={backCleanup}
-              onChange={(file) => {
-                setBackFile(file);
-                setBackCleanup(defaultCleanup);
-              }}
-              onCleanupChange={setBackCleanup}
-            />
+            <button
+              type="button"
+              onClick={() => setUploadMode("camera")}
+              className={`inline-flex h-11 items-center justify-center gap-2 rounded-md border px-3 text-sm font-bold ${
+                uploadMode === "camera" ? "border-archive-ink bg-archive-ink text-white" : "border-archive-ink/10 bg-white text-archive-ink"
+              }`}
+            >
+              <Camera className="h-4 w-4" />
+              Camera scan
+            </button>
+            <button
+              type="button"
+              onClick={() => setUploadMode("manual")}
+              className={`inline-flex h-11 items-center justify-center gap-2 rounded-md border px-3 text-sm font-bold ${
+                uploadMode === "manual" ? "border-archive-ink bg-archive-ink text-white" : "border-archive-ink/10 bg-white text-archive-ink"
+              }`}
+            >
+              <UploadCloud className="h-4 w-4" />
+              Manual upload
+            </button>
           </div>
+
+          {uploadMode === "camera" ? (
+            <CameraScanPanel
+              frontFile={frontFile}
+              backFile={backFile}
+              frontPreviewUrl={frontPreviewUrl}
+              backPreviewUrl={backPreviewUrl}
+              onCapture={(side, file) => {
+                if (side === "front") {
+                  setFrontFile(file);
+                  setFrontCleanup(defaultCleanup);
+                } else {
+                  setBackFile(file);
+                  setBackCleanup(defaultCleanup);
+                }
+              }}
+              onClear={(side) => {
+                if (side === "front") {
+                  setFrontFile(null);
+                  setFrontCleanup(defaultCleanup);
+                } else {
+                  setBackFile(null);
+                  setBackCleanup(defaultCleanup);
+                }
+              }}
+            />
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              <ScanFilePicker
+                label="Front scan"
+                statusLabel={selectedMissingSides.includes("front") ? "Needed" : "Already approved"}
+                file={frontFile}
+                previewUrl={frontPreviewUrl}
+                cleanup={frontCleanup}
+                onChange={(file) => {
+                  setFrontFile(file);
+                  setFrontCleanup(defaultCleanup);
+                }}
+                onCleanupChange={setFrontCleanup}
+              />
+              <ScanFilePicker
+                label="Back scan"
+                statusLabel={selectedMissingSides.includes("back") ? "Needed" : "Already approved"}
+                file={backFile}
+                previewUrl={backPreviewUrl}
+                cleanup={backCleanup}
+                onChange={(file) => {
+                  setBackFile(file);
+                  setBackCleanup(defaultCleanup);
+                }}
+                onCleanupChange={setBackCleanup}
+              />
+            </div>
+          )}
 
           <button
             type="button"
@@ -322,6 +374,216 @@ export function AdminCardImageUploader({ cards, initialCardSlug }: { cards: Card
       </aside>
     </div>
   );
+}
+
+function CameraScanPanel({
+  frontFile,
+  backFile,
+  frontPreviewUrl,
+  backPreviewUrl,
+  onCapture,
+  onClear
+}: {
+  frontFile: File | null;
+  backFile: File | null;
+  frontPreviewUrl: string;
+  backPreviewUrl: string;
+  onCapture: (side: CardImageSide, file: File) => void;
+  onClear: (side: CardImageSide) => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [activeSide, setActiveSide] = useState<CardImageSide>("front");
+  const [cameraState, setCameraState] = useState<"idle" | "starting" | "ready" | "capturing" | "error">("idle");
+  const [cameraError, setCameraError] = useState("");
+
+  useEffect(() => {
+    return () => stopCamera();
+  }, []);
+
+  async function startCamera(side: CardImageSide) {
+    setActiveSide(side);
+    setCameraState("starting");
+    setCameraError("");
+
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Camera capture is not available in this browser. Use manual upload instead.");
+      }
+
+      stopCamera();
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1600 },
+          height: { ideal: 2200 }
+        },
+        audio: false
+      });
+
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      setCameraState("ready");
+    } catch (error) {
+      setCameraState("error");
+      setCameraError(error instanceof Error ? error.message : "Camera access failed. Use manual upload instead.");
+    }
+  }
+
+  function stopCamera() {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setCameraState((current) => (current === "ready" || current === "capturing" || current === "starting" ? "idle" : current));
+  }
+
+  async function captureFrame() {
+    const video = videoRef.current;
+
+    if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+      setCameraState("error");
+      setCameraError("Camera is not ready yet.");
+      return;
+    }
+
+    setCameraState("capturing");
+    try {
+      const file = await createCardCropFile(video, activeSide);
+      onCapture(activeSide, file);
+      stopCamera();
+      setCameraState("idle");
+    } catch (error) {
+      setCameraState("error");
+      setCameraError(error instanceof Error ? error.message : "Could not capture the card. Use manual upload instead.");
+    }
+  }
+
+  return (
+    <div className="grid gap-4 rounded-lg border border-archive-ink/10 bg-white/52 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="font-display text-2xl font-bold">Camera Scan</h2>
+          <p className="mt-1 text-sm font-semibold text-archive-ink/62">
+            Align the card inside the guide. The capture is cropped to trading-card shape; manual upload remains available above.
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-2 rounded-md bg-archive-brass/14 px-3 py-2 text-xs font-black uppercase text-archive-oxblood">
+          <ScanLine className="h-4 w-4" />
+          Beta
+        </span>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <CapturedPreview side="front" file={frontFile} previewUrl={frontPreviewUrl} onClear={onClear} />
+        <CapturedPreview side="back" file={backFile} previewUrl={backPreviewUrl} onClear={onClear} />
+      </div>
+
+      <div className="overflow-hidden rounded-lg border border-archive-ink/10 bg-archive-ink">
+        <div className="relative aspect-[2.5/3.5] max-h-[560px] w-full bg-archive-ink">
+          <video ref={videoRef} playsInline muted className="h-full w-full object-cover" />
+          <div className="pointer-events-none absolute inset-5 rounded-lg border-2 border-white/85 shadow-[0_0_0_999px_rgba(0,0,0,0.28)]" />
+          <div className="pointer-events-none absolute inset-x-0 top-4 text-center text-xs font-black uppercase tracking-[0.18em] text-white/80">
+            {cameraState === "ready" ? `${activeSide} side ready` : "Place card in frame"}
+          </div>
+        </div>
+      </div>
+
+      {cameraError ? <p className="rounded-md border border-archive-oxblood/25 bg-archive-oxblood/10 p-3 text-sm font-bold text-archive-oxblood">{cameraError}</p> : null}
+
+      <div className="grid gap-2 sm:grid-cols-4">
+        <button type="button" onClick={() => startCamera("front")} className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-archive-ink/10 bg-white px-3 text-sm font-bold">
+          <Camera className="h-4 w-4" />
+          Scan front
+        </button>
+        <button type="button" onClick={() => startCamera("back")} className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-archive-ink/10 bg-white px-3 text-sm font-bold">
+          <Camera className="h-4 w-4" />
+          Scan back
+        </button>
+        <button
+          type="button"
+          onClick={captureFrame}
+          disabled={cameraState !== "ready"}
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-archive-ink px-3 text-sm font-bold text-white disabled:opacity-40"
+        >
+          {cameraState === "capturing" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanLine className="h-4 w-4" />}
+          Capture
+        </button>
+        <button type="button" onClick={stopCamera} className="inline-flex h-11 items-center justify-center rounded-md border border-archive-ink/10 bg-white px-3 text-sm font-bold">
+          Stop camera
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CapturedPreview({
+  side,
+  file,
+  previewUrl,
+  onClear
+}: {
+  side: CardImageSide;
+  file: File | null;
+  previewUrl: string;
+  onClear: (side: CardImageSide) => void;
+}) {
+  return (
+    <div className="rounded-md border border-archive-ink/10 bg-archive-paper/70 p-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="text-sm font-black capitalize">{side} capture</p>
+        {file ? (
+          <button type="button" onClick={() => onClear(side)} className="inline-flex items-center gap-1 text-xs font-bold text-archive-oxblood">
+            <X className="h-3.5 w-3.5" />
+            Clear
+          </button>
+        ) : null}
+      </div>
+      {previewUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={previewUrl} alt={`${side} camera capture`} className="mx-auto max-h-64 rounded-md object-contain shadow-card" />
+      ) : (
+        <div className="grid min-h-44 place-items-center rounded-md border border-dashed border-archive-ink/16 bg-white/54 text-center text-sm font-bold text-archive-ink/45">
+          No {side} capture yet.
+        </div>
+      )}
+    </div>
+  );
+}
+
+async function createCardCropFile(video: HTMLVideoElement, side: CardImageSide) {
+  const sourceWidth = video.videoWidth;
+  const sourceHeight = video.videoHeight;
+  const cardAspect = 2.5 / 3.5;
+  let cropHeight = Math.round(sourceHeight * 0.86);
+  let cropWidth = Math.round(cropHeight * cardAspect);
+
+  if (cropWidth > sourceWidth * 0.9) {
+    cropWidth = Math.round(sourceWidth * 0.9);
+    cropHeight = Math.round(cropWidth / cardAspect);
+  }
+
+  const cropX = Math.round((sourceWidth - cropWidth) / 2);
+  const cropY = Math.round((sourceHeight - cropHeight) / 2);
+  const canvas = document.createElement("canvas");
+  canvas.width = 1000;
+  canvas.height = 1400;
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    throw new Error("Could not prepare camera capture.");
+  }
+
+  context.drawImage(video, cropX, cropY, cropWidth, cropHeight, 0, 0, canvas.width, canvas.height);
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((result) => (result ? resolve(result) : reject(new Error("Could not capture image."))), "image/webp", 0.92);
+  });
+
+  return new File([blob], `${side}-camera-scan-${Date.now()}.webp`, { type: "image/webp" });
 }
 
 function ScanFilePicker({
