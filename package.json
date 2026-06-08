@@ -7,6 +7,7 @@
     "build": "next build",
     "lint": "eslint .",
     "ingest-approved-scans": "node scripts/ingest-approved-scans.mjs",
+    "scrape-card-set-images": "node scripts/scrape-card-set-images.mjs",
     "seed": "tsx scripts/seed.ts",
     "process-scan": "node scripts/process-card-scan.mjs",
     "start": "next start"
