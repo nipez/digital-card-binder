@@ -396,6 +396,15 @@ function CameraScanPanel({
   const [activeSide, setActiveSide] = useState<CardImageSide>("front");
   const [cameraState, setCameraState] = useState<"idle" | "starting" | "ready" | "capturing" | "error">("idle");
   const [cameraError, setCameraError] = useState("");
+  const hasActiveCamera = cameraState === "ready" || cameraState === "capturing" || cameraState === "starting";
+  const guideLabel =
+    cameraState === "ready"
+      ? `${activeSide} side ready`
+      : cameraState === "starting"
+        ? "Starting camera"
+        : cameraState === "error"
+          ? "Camera unavailable"
+          : "Start camera to scan";
 
   useEffect(() => {
     return () => stopCamera();
@@ -486,21 +495,48 @@ function CameraScanPanel({
       <div className="overflow-hidden rounded-lg border border-archive-ink/10 bg-archive-ink">
         <div className="relative aspect-[2.5/3.5] max-h-[560px] w-full bg-archive-ink">
           <video ref={videoRef} playsInline muted className="h-full w-full object-cover" />
-          <div className="pointer-events-none absolute inset-5 rounded-lg border-2 border-white/85 shadow-[0_0_0_999px_rgba(0,0,0,0.28)]" />
-          <div className="pointer-events-none absolute inset-x-0 top-4 text-center text-xs font-black uppercase tracking-[0.18em] text-white/80">
-            {cameraState === "ready" ? `${activeSide} side ready` : "Place card in frame"}
+          <div className="pointer-events-none absolute inset-5 rounded-lg border-2 border-white/85 shadow-[0_0_0_999px_rgba(0,0,0,0.28)]">
+            <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/35 bg-archive-ink px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-white shadow-sm">
+              {guideLabel}
+            </span>
           </div>
+          {!hasActiveCamera ? (
+            <div className="absolute inset-0 grid place-items-center px-6 text-center">
+              <div className="max-w-xs rounded-lg border border-white/12 bg-white/8 p-4 text-white shadow-sm backdrop-blur">
+                <Camera className="mx-auto mb-3 h-7 w-7" />
+                <p className="text-sm font-black">Choose Scan front or Scan back to open your camera.</p>
+                <p className="mt-2 text-xs font-semibold text-white/70">Use a plain background and keep the card inside the guide.</p>
+              </div>
+            </div>
+          ) : null}
+          {cameraState === "ready" ? (
+            <div className="pointer-events-none absolute inset-x-0 bottom-5 px-5">
+              <div className="mx-auto max-w-sm rounded-md bg-archive-ink/82 px-3 py-2 text-center text-xs font-bold text-white shadow-sm">
+                Hold steady, then tap Capture.
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
 
       {cameraError ? <p className="rounded-md border border-archive-oxblood/25 bg-archive-oxblood/10 p-3 text-sm font-bold text-archive-oxblood">{cameraError}</p> : null}
 
       <div className="grid gap-2 sm:grid-cols-4">
-        <button type="button" onClick={() => startCamera("front")} className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-archive-ink/10 bg-white px-3 text-sm font-bold">
+        <button
+          type="button"
+          onClick={() => startCamera("front")}
+          disabled={cameraState === "starting" || cameraState === "capturing"}
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-archive-ink/10 bg-white px-3 text-sm font-bold disabled:opacity-45"
+        >
           <Camera className="h-4 w-4" />
           Scan front
         </button>
-        <button type="button" onClick={() => startCamera("back")} className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-archive-ink/10 bg-white px-3 text-sm font-bold">
+        <button
+          type="button"
+          onClick={() => startCamera("back")}
+          disabled={cameraState === "starting" || cameraState === "capturing"}
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-archive-ink/10 bg-white px-3 text-sm font-bold disabled:opacity-45"
+        >
           <Camera className="h-4 w-4" />
           Scan back
         </button>
@@ -511,9 +547,14 @@ function CameraScanPanel({
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-archive-ink px-3 text-sm font-bold text-white disabled:opacity-40"
         >
           {cameraState === "capturing" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanLine className="h-4 w-4" />}
-          Capture
+          {cameraState === "capturing" ? "Capturing" : "Capture"}
         </button>
-        <button type="button" onClick={stopCamera} className="inline-flex h-11 items-center justify-center rounded-md border border-archive-ink/10 bg-white px-3 text-sm font-bold">
+        <button
+          type="button"
+          onClick={stopCamera}
+          disabled={!hasActiveCamera}
+          className="inline-flex h-11 items-center justify-center rounded-md border border-archive-ink/10 bg-white px-3 text-sm font-bold disabled:opacity-45"
+        >
           Stop camera
         </button>
       </div>
